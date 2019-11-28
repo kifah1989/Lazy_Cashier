@@ -1,154 +1,269 @@
 package com.example.lazycashier
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import com.squareup.moshi.Moshi
+import de.tobiasschuerg.money.Currency
+import de.tobiasschuerg.money.Money
+import kotlinx.android.synthetic.main.main_activity.*
+import okhttp3.*
+import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
+    var cur: HashMap<String, Double> = HashMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        button.setOnClickListener {
-            if (!validateHave() or !validateItem() or !validateCalculation()) {
-                return@setOnClickListener
-            }
+        setContentView(R.layout.main_activity)
+        run()
+    }
 
-            var i_have = HaveTxt.text.toString().toDouble()
-            var item_price = ItemPriceTxt.text.toString().toDouble()
+    fun click(view: View) {
 
-            var valueReturnDollar = 0.0
-            var valueReturnLira = 0.0
-            var havetolira = i_have * 1500
-            var itemtolira = item_price * 1500
-
-            if (HaveSwitch1.isChecked && ItemSwitch.isChecked) {
-
-                valueReturnDollar = (i_have - item_price)
-
-                valueReturnLira = (i_have - item_price) * 1500
-
-                //LiraReturnTxtView.text = "you paid ${"%.1f".format(i_have)}${HaveSwitch1.text} and the item price is ${"%.1f".format(item_price)}${ItemSwitch.text} the shop should return ${"%.1f".format(valueReturnDollar)}\$ or ${"%,d".format(valueReturnLira.toInt())}L.L"
-                returnInD.setText("${"%.1f".format(valueReturnDollar)}")
-                returnInL.setText("${valueReturnLira.toInt()}")
-
-            } else if (!HaveSwitch1.isChecked && !ItemSwitch.isChecked) {
-
-                valueReturnDollar = ((i_have - item_price) / 1500)
-
-                valueReturnLira = (i_have - item_price)
-
-                //LiraReturnTxtView.text = "you paid ${"%,d".format(i_have.toInt())}${HaveSwitch1.text} and the item price is ${"%,d".format(item_price.toInt())}${ItemSwitch.text} the shop should return ${"%.1f".format(valueReturnDollar)}\$ or ${"%,d".format(valueReturnLira.toInt())}L.L"
-                returnInD.setText("${"%.1f".format(valueReturnDollar)}")
-                returnInL.setText("${valueReturnLira.toInt()}")
-
-            } else if (HaveSwitch1.isChecked && !ItemSwitch.isChecked) {
-
-
-                valueReturnDollar = ((havetolira - item_price) / 1500)
-
-                valueReturnLira = (havetolira - item_price)
-
-                // LiraReturnTxtView.text = "you paid ${"%.1f".format(i_have)}${HaveSwitch1.text} and the item price is ${"%,d".format(item_price.toInt())}${ItemSwitch.text} the shop should return ${"%.1f".format(valueReturnDollar)}\$ or ${"%,d".format(valueReturnLira.toInt())}L.L"
-                returnInD.setText("${"%.1f".format(valueReturnDollar)}")
-                returnInL.setText("${valueReturnLira.toInt()}")
-
-            } else if (!HaveSwitch1.isChecked && ItemSwitch.isChecked) {
-
-                valueReturnDollar = ((i_have - itemtolira) / 1500)
-
-                valueReturnLira = (i_have - itemtolira)
-
-                //LiraReturnTxtView.text = "you paid ${"%,d".format(i_have.toInt())}${HaveSwitch1.text} and the item price is ${"%.1f".format(item_price)}${ItemSwitch.text} the shop should return ${"%.1f".format(valueReturnDollar)}\$ or ${"%,d".format(valueReturnLira.toInt())}L.L"
-                returnInD.setText("${"%.1f".format(valueReturnDollar)}")
-                returnInL.setText("${valueReturnLira.toInt()}")
-            }
-
-        }
+        calculate()
 
     }
 
-    private fun validateHave(): Boolean {
-        val ihave = HaveTxt.text.toString().trim()
-
-        if (ihave.isEmpty()) {
-            HaveTxt.error = "Field can't be empty"
-            //LiraReturnTxtView.text = "Field can't be empty"
-
-            return false
-        } else if (HaveSwitch1.isChecked && ihave.length > 3 || !HaveSwitch1.isChecked && ihave.length > 6) {
-            HaveTxt.error = "WoOo you have lots of money"
-            //LiraReturnTxtView.text = "WoOo you have lots of money"
-
-            return false
-        } else {
-            HaveTxt.error = null
-            return true
-        }
-    }
-
-    private fun validateItem(): Boolean {
-        val item = ItemPriceTxt.text.toString().trim()
-
-        return if (item.isEmpty()) {
-            ItemPriceTxt.error = "Field can't be empty"
-            //LiraReturnTxtView.text = "Field can't be empty"
-
-            false
-        } else if (ItemSwitch.isChecked && item.length > 3 || !ItemSwitch.isChecked && item.length > 6) {
-            ItemPriceTxt.error = "you broke"
-            // LiraReturnTxtView.text=  "you broke"
-
-            false
-        } else {
-            ItemPriceTxt.error = null
-            true
-        }
-    }
-
-    private fun validateCalculation(): Boolean {
-        val ihave = HaveTxt.text.toString().trim()
-        val item_price = ItemPriceTxt.text.toString().trim()
-
-        if (ihave.isEmpty()) {
-            HaveTxt.error = "Field can't be empty"
-            //LiraReturnTxtView.text = "WoOo you have lots of money"
-
-            return false
-        }
+    private fun validate(): Boolean {
+        val i_have = editText.text.toString()
+        val item_price = editText2.text.toString()
+        val euro = Currency("EUR", "Euro", 1.0)
+        val lira = Currency("LBP", "Lebanese Pound", 1500.0)
+        val aed = Currency("AED", "Arab Emirates Dirham", 4.0)
+        val usd = Currency("USD", "US Dollars", 1.1)
+        val ihaveMoney = Money(i_have.toDouble(), euro)
+        val itemMoney = Money(item_price.toDouble(), euro)
+        if (i_have.isEmpty()) {
+            editText.error = "Field can't be empty"
+        } else
         if (item_price.isEmpty()) {
-            ItemPriceTxt.error = "Field can't be empty"
-            //LiraReturnTxtView.text = "Field can't be empty"
+            editText2.error = "Field can't be empty"
+        } else
+            if (spinner.selectedItem.toString() == "LBP" && i_have.length > 6) {
+                editText.error = "WoOo you have lots of money"
+            } else
+                if (spinner2.selectedItem.toString() == "EUR") {
+                    editText.error = "you broke"
+                }
+        return true
+    }
 
-            return false
-        } else if (!HaveSwitch1.isChecked && !ItemSwitch.isChecked && ihave.toDouble() < item_price.toDouble()) {
-            HaveTxt.error = "you broke"
-            //LiraReturnTxtView.text= "you broke"
 
-            return false
-        } else if (HaveSwitch1.isChecked && ItemSwitch.isChecked && ihave.toDouble() < item_price.toDouble()) {
-            HaveTxt.error = "you broke"
-            //LiraReturnTxtView.text = "you broke"
+    @SuppressLint("SetTextI18n")
+    private fun calculate() {
 
-            return false
-        } else if (HaveSwitch1.isChecked && !ItemSwitch.isChecked && ihave.toDouble() < item_price.toDouble() / 1500) {
-            HaveTxt.error = "you broke"
-            //LiraReturnTxtView.text= "you broke"
+        val i_have = editText.text.toString().toDouble()
+        val item_price = editText2.text.toString().toDouble()
+        val euro = Currency("EUR", "Euro", 1.0)
+        val lira = Currency("LBP", "Lebanese Pound", 1500.0)
+        val aed = Currency("AED", "Arab Emirates Dirham", 4.0)
+        val usd = Currency("USD", "US Dollars", 1.1)
 
-            return false
-        } else if (!HaveSwitch1.isChecked && ItemSwitch.isChecked && ihave.toDouble() / 1500 < item_price.toDouble()) {
-            HaveTxt.error = "you broke"
-            //LiraReturnTxtView.text = "you broke"
 
-            return false
-        } else {
-            HaveTxt.error = null
-            ItemPriceTxt.error = null
+        when {
+            spinner.selectedItem.toString() == "EUR" && spinner2.selectedItem.toString() == "EUR" -> {
+                val ihaveMoney = Money(i_have, euro)
+                val itemMoney = Money(item_price, euro)
+                val con1 = ihaveMoney.convertInto(euro)
+                val con2 = itemMoney.convertInto(euro)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
 
-            return true
+            }
+            spinner.selectedItem.toString() == "EUR" && spinner2.selectedItem.toString() == "LBP" -> {
+                val ihaveMoney = Money(i_have, euro)
+                val itemMoney = Money(item_price, lira)
+                val con2 = itemMoney.convertInto(euro)
+                val con1 = ihaveMoney.convertInto(lira)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "EUR" && spinner2.selectedItem.toString() == "AED" -> {
+                val ihaveMoney = Money(i_have, euro)
+                val itemMoney = Money(item_price, aed)
+                val con2 = itemMoney.convertInto(euro)
+                val con1 = ihaveMoney.convertInto(aed)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "EUR" && spinner2.selectedItem.toString() == "USD" -> {
+                val ihaveMoney = Money(i_have, euro)
+                val itemMoney = Money(item_price, usd)
+                val con2 = itemMoney.convertInto(euro)
+                val con1 = ihaveMoney.convertInto(usd)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "LBP" && spinner2.selectedItem.toString() == "EUR" -> {
+                val ihaveMoney = Money(i_have, lira)
+                val itemMoney = Money(item_price, euro)
+                val con2 = itemMoney.convertInto(lira)
+                val con1 = ihaveMoney.convertInto(euro)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "LBP" && spinner2.selectedItem.toString() == "LBP" -> {
+                val ihaveMoney = Money(i_have, lira)
+                val itemMoney = Money(item_price, lira)
+                val con2 = itemMoney.convertInto(lira)
+                val con1 = ihaveMoney.convertInto(lira)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "LBP" && spinner2.selectedItem.toString() == "AED" -> {
+                val ihaveMoney = Money(i_have, lira)
+                val itemMoney = Money(item_price, aed)
+                val con2 = itemMoney.convertInto(lira)
+                val con1 = ihaveMoney.convertInto(aed)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "LBP" && spinner2.selectedItem.toString() == "USD" -> {
+                val ihaveMoney = Money(i_have, lira)
+                val itemMoney = Money(item_price, usd)
+                val con2 = itemMoney.convertInto(lira)
+                val con1 = ihaveMoney.convertInto(usd)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "AED" && spinner2.selectedItem.toString() == "EUR" -> {
+                val ihaveMoney = Money(i_have, aed)
+                val itemMoney = Money(item_price, euro)
+                val con2 = itemMoney.convertInto(aed)
+                val con1 = ihaveMoney.convertInto(euro)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "AED" && spinner2.selectedItem.toString() == "LBP" -> {
+                val ihaveMoney = Money(i_have, aed)
+                val itemMoney = Money(item_price, lira)
+                val con2 = itemMoney.convertInto(aed)
+                val con1 = ihaveMoney.convertInto(lira)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "AED" && spinner2.selectedItem.toString() == "AED" -> {
+                val ihaveMoney = Money(i_have, aed)
+                val itemMoney = Money(item_price, aed)
+                val con2 = itemMoney.convertInto(aed)
+                val con1 = ihaveMoney.convertInto(aed)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "AED" && spinner2.selectedItem.toString() == "USD" -> {
+                val ihaveMoney = Money(i_have, aed)
+                val itemMoney = Money(item_price, usd)
+                val con2 = itemMoney.convertInto(aed)
+                val con1 = ihaveMoney.convertInto(usd)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "USD" && spinner2.selectedItem.toString() == "EUR" -> {
+                val ihaveMoney = Money(i_have, usd)
+                val itemMoney = Money(item_price, euro)
+                val con2 = itemMoney.convertInto(usd)
+                val con1 = ihaveMoney.convertInto(euro)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "USD" && spinner2.selectedItem.toString() == "LBP" -> {
+                val ihaveMoney = Money(i_have, usd)
+                val itemMoney = Money(item_price, lira)
+                val con2 = itemMoney.convertInto(usd)
+                val con1 = ihaveMoney.convertInto(lira)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "USD" && spinner2.selectedItem.toString() == "AED" -> {
+                val ihaveMoney = Money(i_have, usd)
+                val itemMoney = Money(item_price, aed)
+                val con2 = itemMoney.convertInto(usd)
+                val con1 = ihaveMoney.convertInto(aed)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
+            spinner.selectedItem.toString() == "USD" && spinner2.selectedItem.toString() == "USD" -> {
+                val ihaveMoney = Money(i_have, usd)
+                val itemMoney = Money(item_price, usd)
+                val con2 = itemMoney.convertInto(usd)
+                val con1 = ihaveMoney.convertInto(usd)
+                val returnMoney1 = ihaveMoney - con2
+                val returnMoney2 = con1 - itemMoney
+                textView.text = "return: $returnMoney1"
+                textView2.text = "return: $returnMoney2"
+            }
         }
     }
 
+    private val client = OkHttpClient()
+    private val moshi = Moshi.Builder().build()
+    private val ratesJsonAdapter = moshi.adapter(fixer::class.java)
+    @Throws(Exception::class)
+    fun run() {
+        val request = Request.Builder()
+            .url("http://data.fixer.io/api/latest?access_key=997d4f2093f733edadf912c7918d8a84&symbols=USD,AED,EUR,LBP")
+            .build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                    val getCurRates = ratesJsonAdapter.fromJson(response.body!!.source())
+                    val cur = getCurRates!!.rates
+                    for ((k, v) in cur) {
+                        println("$k $v")
+                    }
+                }
+            }
+
+        })
+
+    }
+
+    data class fixer(
+        val base: String,
+        val date: String,
+        val rates: Map<String, Double>,
+        val success: Boolean,
+        val timestamp: Int
+    )
 
 }
+
+
