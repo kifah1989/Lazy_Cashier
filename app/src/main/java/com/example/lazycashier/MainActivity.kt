@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
     var valueList: ArrayList<Double> = arrayListOf()
     var keyList: ArrayList<String> = arrayListOf()
     val currencyRates: HashMap<String, Double> = HashMap()
-    var code = ""
-    var code2: String = ""
+    var code = "AED"
+    var code2: String = "AED"
     var rate: Double = 0.0
     var rate2: Double = 0.0
     var cur1 = Currency(code, code, rate)
@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 code = spinner.selectedItem.toString()
                 rate = currencyRates[code]!!
+                cur1 = Currency(code, code, rate)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -80,6 +81,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 code2 = spinner2.selectedItem.toString()
                 rate2 = currencyRates[code2]!!
+                cur2 = Currency(code2, code2, rate2)
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -90,17 +93,6 @@ class MainActivity : AppCompatActivity() {
         //code = mSpinner.selectedItem.toString()
         //rate = currencyRates[code]!!
         //finish spinner adapter and onitemselect listener
-
-        code = "AED"
-        rate = 5.0
-        code2 = "AED"
-        rate2 = 3.0
-        cur1 = Currency(code, code, rate)
-        cur2 = Currency(code2, code2, rate2)
-        mon = Money(5, cur1)
-        mon2 = Money(3, this.cur2)
-        textView5.text = "= " + mon.convertInto(cur2)
-        textView6.text = "= " + mon2.convertInto(cur1)
     }
 
     fun click(view: View) {
@@ -124,26 +116,27 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
             else -> {
-                calculate()
                 return true
             }
         }
     }
-
     fun calculate() {
+        cur1 = Currency(code, code, rate)
+
+        cur2 = Currency(code2, code2, rate2)
         val iHave1 = editText.text.toString().toDouble()
         val itemPrice1 = editText2.text.toString().toDouble()
         val ihaveMoney = Money(iHave1, cur1)
         val itemMoney = Money(itemPrice1, cur2)
         val returnMoney1 = ihaveMoney - itemMoney.convertInto(cur1)
         val returnMoney2 = ihaveMoney.convertInto(cur2) - itemMoney
-        cur1 = Currency(code, code, rate)
-        cur2 = Currency(code2, code2, rate2)
+
         when {
-            returnMoney1.convertInto(cur1).isNegative() -> {
+            returnMoney1.isNegative() && returnMoney2.isNegative() -> {
                 editText.error = "you dont have enough money"
             }
             else -> {
+                editText.error = null
                 textView.text = "return: $returnMoney1"
                 textView2.text = "return: $returnMoney2"
                 textView5.text = "= " + ihaveMoney.convertInto(cur2)
