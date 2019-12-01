@@ -104,7 +104,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun click(view: View) {
-        validate()
+        if (validate())
+            calculate()
     }
 
     @SuppressLint("SetTextI18n")
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                 editText2.error = "please enter amount"
                 return false
             }
-            editText.text.length > 6 -> {
+            editText.text.length >= 6 -> {
                 editText.error = "WoOo you have lots of money"
                 return false
             }
@@ -139,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         cur1 = Currency(code, code, rate)
         cur2 = Currency(code2, code2, rate2)
         when {
-            returnMoney1.isNegative() || returnMoney2.isNegative() -> {
+            returnMoney1.convertInto(cur1).isNegative() -> {
                 editText.error = "you dont have enough money"
             }
             else -> {
@@ -156,7 +157,7 @@ class MainActivity : AppCompatActivity() {
     @Throws(Exception::class)
     fun run() {
         val request = Request.Builder()
-            .url("http://data.fixer.io/api/latest?access_key=997d4f2093f733edadf912c7918d8a84")
+            .url("http://data.fixer.io/api/latest?access_key=997d4f2093f733edadf912c7918d8a84&symbols=USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,SAR,INR")
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
