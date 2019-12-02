@@ -128,17 +128,23 @@ class MainActivity : AppCompatActivity() {
         val itemPrice1 = editText2.text.toString().toDouble()
         val ihaveMoney = Money(iHave1, cur1)
         val itemMoney = Money(itemPrice1, cur2)
-        val returnMoney1 = ihaveMoney - itemMoney.convertInto(cur1)
-        val returnMoney2 = ihaveMoney.convertInto(cur2) - itemMoney
+        val ihavetoitem = ihaveMoney.convertInto(cur2)
+        val itemtoihave = itemMoney.convertInto(cur1)
+
+        val returnMoney1 = ihaveMoney - itemtoihave
+        val returnMoney2 = ihavetoitem - itemMoney
+
+
+
 
         when {
-            returnMoney1.isNegative() && returnMoney2.isNegative() -> {
+            ihaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                 editText.error = "you dont have enough money"
                 textView.text = ""
+
             }
-            returnMoney2.isZero() && returnMoney1.isNegative() -> {
+            returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                 textView.text = ihaveMoney.toString() + " is equal to " + itemMoney.toString()
-                editText.error = null
             }
             else -> {
                 editText.error = null
