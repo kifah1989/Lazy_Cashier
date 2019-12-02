@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         run()
-        sleep(3000)
+        sleep(2000)
         keyList = ArrayList(currencyRates.keys.sorted())
         valueList = ArrayList(currencyRates.values.sorted())
 
@@ -134,6 +134,11 @@ class MainActivity : AppCompatActivity() {
         when {
             returnMoney1.isNegative() && returnMoney2.isNegative() -> {
                 editText.error = "you dont have enough money"
+                textView.text = ""
+            }
+            returnMoney2.isZero() && returnMoney1.isNegative() -> {
+                textView.text = ihaveMoney.toString() + " is equal to " + itemMoney.toString()
+                editText.error = null
             }
             else -> {
                 editText.error = null
