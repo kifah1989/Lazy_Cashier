@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 editText2.error = "please enter amount"
                 return false
             }
-            editText.text.length >= 6 -> {
+            editText.text.length >= 7 -> {
                 editText.error = "WoOo you have lots of money"
                 return false
             }
@@ -134,24 +134,23 @@ class MainActivity : AppCompatActivity() {
         val returnMoney1 = ihaveMoney - itemtoihave
         val returnMoney2 = ihavetoitem - itemMoney
 
-
-
-
+        textView5.text = "= " + ihavetoitem
+        textView6.text = "= " + itemtoihave
         when {
             ihaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                 editText.error = "you dont have enough money"
                 textView.text = ""
+                textView2.text = ""
 
             }
             returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
+                textView2.text = ""
                 textView.text = ihaveMoney.toString() + " is equal to " + itemMoney.toString()
             }
             else -> {
                 editText.error = null
                 textView.text = "return: $returnMoney1"
                 textView2.text = "return: $returnMoney2"
-                textView5.text = "= " + ihaveMoney.convertInto(cur2)
-                textView6.text = "= " + itemMoney.convertInto(cur1)
             }
         }
     }
