@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import de.tobiasschuerg.money.Currency
 import de.tobiasschuerg.money.Money
@@ -69,7 +70,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // Another interface callback
             }
         }
         spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -86,13 +86,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // Another interface callback
-            }
+            }                // Another interface callback
+
         }
-        //spinner todo
-        //code = mSpinner.selectedItem.toString()
-        //rate = currencyRates[code]!!
-        //finish spinner adapter and onitemselect listener
     }
 
     fun click(view: View) {
@@ -105,14 +101,26 @@ class MainActivity : AppCompatActivity() {
         when {
             editText.text.isEmpty() -> {
                 editText.error = "please enter amount"
+                textView.text = ""
+                textView2.text = ""
+                textView5.text = ""
+                textView6.text = ""
+
                 return false
             }
             editText2.text.isEmpty() -> {
                 editText2.error = "please enter amount"
+                textView2.text = ""
+                textView5.text = ""
+                textView6.text = ""
                 return false
             }
             editText.text.length >= 7 -> {
                 editText.error = "WoOo you have lots of money"
+                textView.text = ""
+                textView2.text = ""
+                textView5.text = ""
+                textView6.text = ""
                 return false
             }
             else -> {
@@ -178,6 +186,8 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    @JsonClass(generateAdapter = true)
     data class fixer(
         val base: String,
         val date: String,
