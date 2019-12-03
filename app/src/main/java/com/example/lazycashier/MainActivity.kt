@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
@@ -23,15 +23,17 @@ class MainActivity : AppCompatActivity() {
     var valueList: ArrayList<Double> = arrayListOf()
     var keyList: ArrayList<String> = arrayListOf()
     val currencyRates: HashMap<String, Double> = HashMap()
-    var code = "AED"
-    var code2: String = "AED"
+    var code = "USD"
+    var code2: String = "USD"
     var rate: Double = 0.0
     var rate2: Double = 0.0
     var cur1 = Currency(code, code, rate)
     var cur2 = Currency(code2, code2, rate2)
-    var mon = Money(1, cur1)
-    var mon2 = Money(1, cur2)
 
+    lateinit var spinnerTitles: Array<String>
+    lateinit var spinnerImages: IntArray
+    var mSpinner: Spinner? = null
+    var mSpinner2: Spinner? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,53 +43,95 @@ class MainActivity : AppCompatActivity() {
         sleep(2000)
         keyList = ArrayList(currencyRates.keys.sorted())
         valueList = ArrayList(currencyRates.values.sorted())
-
-        //start spinner adapter and onitemselect listener
-        val adapter = ArrayAdapter(
-            this, // Context
-            android.R.layout.simple_spinner_dropdown_item, // Layout
-            keyList // Array
+        //
+        val keys = arrayListOf(
+            "USD",
+            "LBP",
+            "SYP",
+            "EUR",
+            "AED",
+            "SAR",
+            "QAR",
+            "INR",
+            "AUD",
+            "GBP",
+            "EGP",
+            "BHD"
         )
+        //valueList = arrayListOf(currencyRates["USD"]!! ,currencyRates["LBP"]!! ,currencyRates["SYP"]!! ,currencyRates["EUR"]!! ,currencyRates["AED"]!! ,currencyRates["SAR"]!! ,currencyRates["QAR"]!! ,currencyRates["INR"]!! ,currencyRates["AUD"]!! ,currencyRates["GBP"]!! ,currencyRates["EGP"]!! ,currencyRates["BHD"]!!)
 
-        // Set the drop down view resource
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
 
-        // Finally, data bind the spinner object with dapter
-        spinner.adapter = adapter
-        spinner2.adapter = adapter
+        mSpinner = findViewById<View>(R.id.spinner) as Spinner
+        mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
 
-        // Set an on item selected listener for spinner object
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerTitles = arrayOf(
+            "Us Dollar",
+            "ليرة لبنانية",
+            "ليرة سورية",
+            "Euro",
+            "درهم امراتي",
+            "ريال سعودي",
+            "ريال قطري",
+            "Indian Rupee",
+            "Australian Dollar",
+            "GBP",
+            "جنه مصري",
+            "دينار بحرين"
+        )
+        spinnerImages = intArrayOf(
+            R.drawable.flag_usd
+            , R.drawable.flag_lbp
+            , R.drawable.flag_syp
+            , R.drawable.flag_eur
+            , R.drawable.flag_aed
+            , R.drawable.flag_sar
+            , R.drawable.flag_qar
+            , R.drawable.flag_inr
+            , R.drawable.flag_aud
+            , R.drawable.flag_gbp
+            , R.drawable.flag_egp
+            , R.drawable.flag_bhd
+        )
+        val mCustomAdapter = SpinnerAdapter(this@MainActivity, spinnerTitles, spinnerImages)
+        mSpinner!!.adapter = mCustomAdapter
+        mSpinner2!!.adapter = mCustomAdapter
+
+        mSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
                 view: View,
                 position: Int,
                 id: Long
             ) {
-                code = spinner.selectedItem.toString()
+                // Display the selected item text on text view
+                code = keys[position]
                 rate = currencyRates[code]!!
                 cur1 = Currency(code, code, rate)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
+                // Another interface callback
             }
         }
-        spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        mSpinner2!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
                 view: View,
                 position: Int,
                 id: Long
             ) {
-                code2 = spinner2.selectedItem.toString()
+
+                // Display the selected item text on text view
+                code2 = keys[position]
                 rate2 = currencyRates[code2]!!
                 cur2 = Currency(code2, code2, rate2)
 
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-            }                // Another interface callback
-
+                // Another interface callback
+            }
         }
     }
 
