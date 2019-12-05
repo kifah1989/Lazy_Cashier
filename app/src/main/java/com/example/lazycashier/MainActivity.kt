@@ -2,10 +2,15 @@ package com.example.lazycashier
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.InputFilter.LengthFilter
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.lazycashier.R.drawable.*
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import de.tobiasschuerg.money.Currency
@@ -20,11 +25,10 @@ import kotlin.collections.set
 
 
 class MainActivity : AppCompatActivity() {
-    var valueList: ArrayList<Double> = arrayListOf()
-    var keyList: ArrayList<String> = arrayListOf()
+    var valueList: ArrayList<Double?> = arrayListOf()
     val currencyRates: HashMap<String, Double> = HashMap()
     var code = "USD"
-    var code2: String = "USD"
+    var code2: String = "LBP"
     var rate: Double = 0.0
     var rate2: Double = 0.0
     var cur1 = Currency(code, code, rate)
@@ -41,9 +45,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
         run()
         sleep(2000)
-        keyList = ArrayList(currencyRates.keys.sorted())
-        valueList = ArrayList(currencyRates.values.sorted())
-        //
+
+        val cur: ArrayList<Double?> = arrayListOf()
+
         val keys = arrayListOf(
             "USD",
             "LBP",
@@ -58,7 +62,21 @@ class MainActivity : AppCompatActivity() {
             "EGP",
             "BHD"
         )
-        //valueList = arrayListOf(currencyRates["USD"]!! ,currencyRates["LBP"]!! ,currencyRates["SYP"]!! ,currencyRates["EUR"]!! ,currencyRates["AED"]!! ,currencyRates["SAR"]!! ,currencyRates["QAR"]!! ,currencyRates["INR"]!! ,currencyRates["AUD"]!! ,currencyRates["GBP"]!! ,currencyRates["EGP"]!! ,currencyRates["BHD"]!!)
+
+        valueList = arrayListOf(
+            currencyRates[keys[0]],
+            currencyRates[keys[1]],
+            currencyRates[keys[2]],
+            currencyRates[keys[3]],
+            currencyRates[keys[4]],
+            currencyRates[keys[5]],
+            currencyRates[keys[6]],
+            currencyRates[keys[7]],
+            currencyRates[keys[8]],
+            currencyRates[keys[9]],
+            currencyRates[keys[10]],
+            currencyRates[keys[11]]
+        )
 
         //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
 
@@ -80,18 +98,18 @@ class MainActivity : AppCompatActivity() {
             "دينار بحرين"
         )
         spinnerImages = intArrayOf(
-            R.drawable.flag_usd
-            , R.drawable.flag_lbp
-            , R.drawable.flag_syp
-            , R.drawable.flag_eur
-            , R.drawable.flag_aed
-            , R.drawable.flag_sar
-            , R.drawable.flag_qar
-            , R.drawable.flag_inr
-            , R.drawable.flag_aud
-            , R.drawable.flag_gbp
-            , R.drawable.flag_egp
-            , R.drawable.flag_bhd
+            flag_usd,
+            flag_lbp,
+            flag_syp,
+            flag_eur,
+            flag_aed,
+            flag_sar,
+            flag_qar,
+            flag_inr,
+            flag_aud,
+            flag_gbp,
+            flag_egp,
+            flag_bhd
         )
         val mCustomAdapter = SpinnerAdapter(this@MainActivity, spinnerTitles, spinnerImages)
         mSpinner!!.adapter = mCustomAdapter
@@ -106,14 +124,22 @@ class MainActivity : AppCompatActivity() {
             ) {
                 // Display the selected item text on text view
                 code = keys[position]
-                rate = currencyRates[code]!!
-                cur1 = Currency(code, code, rate)
+                rate = valueList[position]!!
+                val curName = spinnerTitles[position]
+                cur1 = Currency(code, curName, rate)
+                textView3.text = "Amount you have in ${spinnerTitles[position]}"
+
+                if (rate >= 1000)
+                    editText.filters = arrayOf<InputFilter>(LengthFilter(6))
+                else
+                    editText.filters = arrayOf<InputFilter>(LengthFilter(3))
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Another interface callback
             }
         }
+
         mSpinner2!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -124,8 +150,14 @@ class MainActivity : AppCompatActivity() {
 
                 // Display the selected item text on text view
                 code2 = keys[position]
-                rate2 = currencyRates[code2]!!
-                cur2 = Currency(code2, code2, rate2)
+                rate2 = valueList[position]!!
+                val curName = spinnerTitles[position]
+                cur2 = Currency(code2, curName, rate2)
+                textView4.text = "Item Price in ${spinnerTitles[position]}"
+                if (rate >= 1000)
+                    editText2.filters = arrayOf<InputFilter>(LengthFilter(6))
+                else
+                    editText2.filters = arrayOf<InputFilter>(LengthFilter(4))
 
             }
 
@@ -159,23 +191,12 @@ class MainActivity : AppCompatActivity() {
                 textView6.text = ""
                 return false
             }
-            editText.text.length >= 7 -> {
-                editText.error = "WoOo you have lots of money"
-                textView.text = ""
-                textView2.text = ""
-                textView5.text = ""
-                textView6.text = ""
-                return false
-            }
             else -> {
                 return true
             }
         }
     }
     fun calculate() {
-        cur1 = Currency(code, code, rate)
-
-        cur2 = Currency(code2, code2, rate2)
         val iHave1 = editText.text.toString().toDouble()
         val itemPrice1 = editText2.text.toString().toDouble()
         val ihaveMoney = Money(iHave1, cur1)
@@ -205,6 +226,13 @@ class MainActivity : AppCompatActivity() {
                 textView2.text = "return: $returnMoney2"
             }
         }
+        val programmingList = findViewById<RecyclerView>(R.id.recyclerView)
+        programmingList.layoutManager = LinearLayoutManager(this)
+
+        programmingList.adapter = CurrencyAdapter(valueList, spinnerImages)
+
+
+
     }
     private val client = OkHttpClient()
     private val moshi = Moshi.Builder().build()
@@ -212,7 +240,7 @@ class MainActivity : AppCompatActivity() {
     @Throws(Exception::class)
     fun run() {
         val request = Request.Builder()
-            .url("http://data.fixer.io/api/latest?access_key=997d4f2093f733edadf912c7918d8a84&symbols=USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,SAR,INR")
+            .url("http://data.fixer.io/api/latest?access_key=997d4f2093f733edadf912c7918d8a84&symbols=USD,LBP,SYP,EUR,AED,SAR,QAR,INR,AUD,GBP,EGP,BHD")
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
