@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 
 class CurrencyAdapter(
-    private val data: ArrayList<Double?>,
-    private val flags: IntArray
+    private val data: ArrayList<Double>,
+    private val flags: ArrayList<Int>
 ) :
     RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
     override fun onCreateViewHolder(

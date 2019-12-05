@@ -23,19 +23,18 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
 
-
 class MainActivity : AppCompatActivity() {
-    var valueList: ArrayList<Double?> = arrayListOf()
     val currencyRates: HashMap<String, Double> = HashMap()
-    var code = "USD"
-    var code2: String = "LBP"
-    var rate: Double = 0.0
-    var rate2: Double = 0.0
-    var cur1 = Currency(code, code, rate)
-    var cur2 = Currency(code2, code2, rate2)
+    var codeList: ArrayList<String> = arrayListOf()
+    var currencyName: ArrayList<String> = arrayListOf()
+    var valueList: ArrayList<Double> = arrayListOf()
+    var currencyList: ArrayList<Currency> = arrayListOf()
+    var currencyListNames: HashMap<String, Currency> = hashMapOf()
+    var flags: ArrayList<Int> = arrayListOf()
+    lateinit var iHaveCurrency: Currency
+    lateinit var itemCurrency: Currency
 
-    lateinit var spinnerTitles: Array<String>
-    lateinit var spinnerImages: IntArray
+
     var mSpinner: Spinner? = null
     var mSpinner2: Spinner? = null
 
@@ -45,10 +44,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
         run()
         sleep(2000)
-
-        val cur: ArrayList<Double?> = arrayListOf()
-
-        val keys = arrayListOf(
+        codeList = arrayListOf(
             "USD",
             "LBP",
             "SYP",
@@ -62,28 +58,7 @@ class MainActivity : AppCompatActivity() {
             "EGP",
             "BHD"
         )
-
-        valueList = arrayListOf(
-            currencyRates[keys[0]],
-            currencyRates[keys[1]],
-            currencyRates[keys[2]],
-            currencyRates[keys[3]],
-            currencyRates[keys[4]],
-            currencyRates[keys[5]],
-            currencyRates[keys[6]],
-            currencyRates[keys[7]],
-            currencyRates[keys[8]],
-            currencyRates[keys[9]],
-            currencyRates[keys[10]],
-            currencyRates[keys[11]]
-        )
-
-        //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
-
-        mSpinner = findViewById<View>(R.id.spinner) as Spinner
-        mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
-
-        spinnerTitles = arrayOf(
+        currencyName = arrayListOf(
             "Us Dollar",
             "ليرة لبنانية",
             "ليرة سورية",
@@ -97,7 +72,7 @@ class MainActivity : AppCompatActivity() {
             "جنه مصري",
             "دينار بحرين"
         )
-        spinnerImages = intArrayOf(
+        flags = arrayListOf(
             flag_usd,
             flag_lbp,
             flag_syp,
@@ -111,7 +86,20 @@ class MainActivity : AppCompatActivity() {
             flag_egp,
             flag_bhd
         )
-        val mCustomAdapter = SpinnerAdapter(this@MainActivity, spinnerTitles, spinnerImages)
+        for (key in codeList) {
+            valueList.add(currencyRates[key]!!)
+        }
+        for (i in 0..2)
+            currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
+
+
+
+        //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
+
+        mSpinner = findViewById<View>(R.id.spinner) as Spinner
+        mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
+
+        val mCustomAdapter = SpinnerAdapter(this@MainActivity, currencyName, flags)
         mSpinner!!.adapter = mCustomAdapter
         mSpinner2!!.adapter = mCustomAdapter
 
@@ -123,12 +111,9 @@ class MainActivity : AppCompatActivity() {
                 id: Long
             ) {
                 // Display the selected item text on text view
-                code = keys[position]
-                rate = valueList[position]!!
-                val curName = spinnerTitles[position]
-                cur1 = Currency(code, curName, rate)
-                textView3.text = "Amount you have in ${spinnerTitles[position]}"
-
+                iHaveCurrency = currencyList[position]
+                val rate = valueList[position]
+                textView3.text = "Amount you have in ${currencyName[position]}"
                 if (rate >= 1000)
                     editText.filters = arrayOf<InputFilter>(LengthFilter(6))
                 else
@@ -147,14 +132,11 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-
                 // Display the selected item text on text view
-                code2 = keys[position]
-                rate2 = valueList[position]!!
-                val curName = spinnerTitles[position]
-                cur2 = Currency(code2, curName, rate2)
-                textView4.text = "Item Price in ${spinnerTitles[position]}"
-                if (rate >= 1000)
+                itemCurrency = currencyList[position]
+                val rate2 = valueList[position]
+                textView4.text = "Item Price in ${currencyName[position]}"
+                if (rate2 >= 1000)
                     editText2.filters = arrayOf<InputFilter>(LengthFilter(6))
                 else
                     editText2.filters = arrayOf<InputFilter>(LengthFilter(4))
@@ -197,20 +179,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun calculate() {
-        val iHave1 = editText.text.toString().toDouble()
-        val itemPrice1 = editText2.text.toString().toDouble()
-        val ihaveMoney = Money(iHave1, cur1)
-        val itemMoney = Money(itemPrice1, cur2)
-        val ihavetoitem = ihaveMoney.convertInto(cur2)
-        val itemtoihave = itemMoney.convertInto(cur1)
+        val ihave = editText.text.toString().toDouble()
+        val itemPrice = editText2.text.toString().toDouble()
+        val iHaveMoney = Money(ihave, iHaveCurrency)
+        val itemMoney = Money(itemPrice, itemCurrency)
 
-        val returnMoney1 = ihaveMoney - itemtoihave
+        val ihavetoitem = iHaveMoney.convertInto(itemCurrency)
+        val itemtoihave = itemMoney.convertInto(iHaveCurrency)
+
+        val returnMoney1 = iHaveMoney - itemtoihave
         val returnMoney2 = ihavetoitem - itemMoney
 
         textView5.text = "= " + ihavetoitem
         textView6.text = "= " + itemtoihave
         when {
-            ihaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
+            iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                 editText.error = "you dont have enough money"
                 textView.text = ""
                 textView2.text = ""
@@ -218,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             }
             returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                 textView2.text = ""
-                textView.text = ihaveMoney.toString() + " is equal to " + itemMoney.toString()
+                textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
             }
             else -> {
                 editText.error = null
@@ -229,10 +212,7 @@ class MainActivity : AppCompatActivity() {
         val programmingList = findViewById<RecyclerView>(R.id.recyclerView)
         programmingList.layoutManager = LinearLayoutManager(this)
 
-        programmingList.adapter = CurrencyAdapter(valueList, spinnerImages)
-
-
-
+        programmingList.adapter = CurrencyAdapter(valueList, flags)
     }
     private val client = OkHttpClient()
     private val moshi = Moshi.Builder().build()
