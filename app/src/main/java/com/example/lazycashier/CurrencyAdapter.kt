@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import de.tobiasschuerg.money.Money
 
 
 class CurrencyAdapter(
-    private val data: ArrayList<Double>,
+    private val data: ArrayList<Money>,
     private val flags: ArrayList<Int>
 ) :
     RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {

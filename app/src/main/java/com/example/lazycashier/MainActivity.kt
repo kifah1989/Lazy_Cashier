@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
             "AED",
             "SAR",
             "QAR",
-            "INR",
             "AUD",
             "GBP",
             "EGP",
@@ -66,7 +65,6 @@ class MainActivity : AppCompatActivity() {
             "درهم امراتي",
             "ريال سعودي",
             "ريال قطري",
-            "Indian Rupee",
             "Australian Dollar",
             "GBP",
             "جنه مصري",
@@ -80,7 +78,6 @@ class MainActivity : AppCompatActivity() {
             flag_aed,
             flag_sar,
             flag_qar,
-            flag_inr,
             flag_aud,
             flag_gbp,
             flag_egp,
@@ -89,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         for (key in codeList) {
             valueList.add(currencyRates[key]!!)
         }
-        for (i in 0..2)
+        for (i in 0..10)
             currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
 
 
@@ -160,7 +157,6 @@ class MainActivity : AppCompatActivity() {
             editText.text.isEmpty() -> {
                 editText.error = "please enter amount"
                 textView.text = ""
-                textView2.text = ""
                 textView5.text = ""
                 textView6.text = ""
 
@@ -168,7 +164,6 @@ class MainActivity : AppCompatActivity() {
             }
             editText2.text.isEmpty() -> {
                 editText2.error = "please enter amount"
-                textView2.text = ""
                 textView5.text = ""
                 textView6.text = ""
                 return false
@@ -184,11 +179,16 @@ class MainActivity : AppCompatActivity() {
         val iHaveMoney = Money(ihave, iHaveCurrency)
         val itemMoney = Money(itemPrice, itemCurrency)
 
+
         val ihavetoitem = iHaveMoney.convertInto(itemCurrency)
         val itemtoihave = itemMoney.convertInto(iHaveCurrency)
 
         val returnMoney1 = iHaveMoney - itemtoihave
         val returnMoney2 = ihavetoitem - itemMoney
+        val moneyList = arrayListOf<Money>()
+        for (currency in currencyList) {
+            moneyList.add(Money(returnMoney1.convertInto(currency).amount, currency))
+        }
 
         textView5.text = "= " + ihavetoitem
         textView6.text = "= " + itemtoihave
@@ -196,23 +196,16 @@ class MainActivity : AppCompatActivity() {
             iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                 editText.error = "you dont have enough money"
                 textView.text = ""
-                textView2.text = ""
 
             }
             returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
-                textView2.text = ""
                 textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
-            }
-            else -> {
-                editText.error = null
-                textView.text = "return: $returnMoney1"
-                textView2.text = "return: $returnMoney2"
             }
         }
         val programmingList = findViewById<RecyclerView>(R.id.recyclerView)
         programmingList.layoutManager = LinearLayoutManager(this)
 
-        programmingList.adapter = CurrencyAdapter(valueList, flags)
+        programmingList.adapter = CurrencyAdapter(moneyList, flags)
     }
     private val client = OkHttpClient()
     private val moshi = Moshi.Builder().build()
