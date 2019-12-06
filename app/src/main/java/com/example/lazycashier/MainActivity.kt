@@ -1,5 +1,4 @@
 package com.example.lazycashier
-
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.InputFilter
@@ -22,7 +21,6 @@ import java.lang.Thread.sleep
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
-
 class MainActivity : AppCompatActivity() {
     val currencyRates: HashMap<String, Double> = HashMap()
     var codeList: ArrayList<String> = arrayListOf()
@@ -33,30 +31,15 @@ class MainActivity : AppCompatActivity() {
     var flags: ArrayList<Int> = arrayListOf()
     lateinit var iHaveCurrency: Currency
     lateinit var itemCurrency: Currency
-
-
     var mSpinner: Spinner? = null
     var mSpinner2: Spinner? = null
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         run()
         sleep(2000)
-        codeList = arrayListOf(
-            "USD",
-            "LBP",
-            "SYP",
-            "EUR",
-            "AED",
-            "SAR",
-            "QAR",
-            "AUD",
-            "GBP",
-            "EGP",
-            "BHD"
-        )
+        codeList =
+            arrayListOf("USD", "LBP", "SYP", "EUR", "AED", "SAR", "QAR", "AUD", "GBP", "EGP", "BHD")
         currencyName = arrayListOf(
             "Us Dollar",
             "ليرة لبنانية",
@@ -88,18 +71,12 @@ class MainActivity : AppCompatActivity() {
         }
         for (i in 0..10)
             currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
-
-
-
         //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
-
         mSpinner = findViewById<View>(R.id.spinner) as Spinner
         mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
-
         val mCustomAdapter = SpinnerAdapter(this@MainActivity, currencyName, flags)
         mSpinner!!.adapter = mCustomAdapter
         mSpinner2!!.adapter = mCustomAdapter
-
         mSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -116,12 +93,10 @@ class MainActivity : AppCompatActivity() {
                 else
                     editText.filters = arrayOf<InputFilter>(LengthFilter(3))
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Another interface callback
             }
         }
-
         mSpinner2!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -137,20 +112,16 @@ class MainActivity : AppCompatActivity() {
                     editText2.filters = arrayOf<InputFilter>(LengthFilter(6))
                 else
                     editText2.filters = arrayOf<InputFilter>(LengthFilter(4))
-
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Another interface callback
             }
         }
     }
-
     fun click(view: View) {
         if (validate())
             calculate()
     }
-
     @SuppressLint("SetTextI18n")
     private fun validate(): Boolean {
         when {
@@ -159,7 +130,6 @@ class MainActivity : AppCompatActivity() {
                 textView.text = ""
                 textView5.text = ""
                 textView6.text = ""
-
                 return false
             }
             editText2.text.isEmpty() -> {
@@ -178,34 +148,31 @@ class MainActivity : AppCompatActivity() {
         val itemPrice = editText2.text.toString().toDouble()
         val iHaveMoney = Money(ihave, iHaveCurrency)
         val itemMoney = Money(itemPrice, itemCurrency)
-
-
         val ihavetoitem = iHaveMoney.convertInto(itemCurrency)
         val itemtoihave = itemMoney.convertInto(iHaveCurrency)
-
         val returnMoney1 = iHaveMoney - itemtoihave
         val returnMoney2 = ihavetoitem - itemMoney
         val moneyList = arrayListOf<Money>()
         for (currency in currencyList) {
             moneyList.add(Money(returnMoney1.convertInto(currency).amount, currency))
         }
-
         textView5.text = "= " + ihavetoitem
         textView6.text = "= " + itemtoihave
         when {
             iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                 editText.error = "you dont have enough money"
                 textView.text = ""
-
             }
             returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                 textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
             }
-        }
-        val programmingList = findViewById<RecyclerView>(R.id.recyclerView)
-        programmingList.layoutManager = LinearLayoutManager(this)
+            else -> {
+                val programmingList = findViewById<RecyclerView>(R.id.recyclerView)
+                programmingList.layoutManager = LinearLayoutManager(this)
 
-        programmingList.adapter = CurrencyAdapter(moneyList, flags)
+                programmingList.adapter = CurrencyAdapter(moneyList, flags)
+            }
+        }
     }
     private val client = OkHttpClient()
     private val moshi = Moshi.Builder().build()
@@ -231,7 +198,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-
     @JsonClass(generateAdapter = true)
     data class fixer(
         val base: String,
@@ -241,5 +207,3 @@ class MainActivity : AppCompatActivity() {
         val timestamp: Int
     )
 }
-
-
