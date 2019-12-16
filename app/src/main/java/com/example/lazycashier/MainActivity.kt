@@ -1,8 +1,10 @@
 package com.example.lazycashier
+
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -10,71 +12,71 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lazycashier.R.drawable.*
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
 import de.tobiasschuerg.money.Currency
 import de.tobiasschuerg.money.Money
 import kotlinx.android.synthetic.main.main_activity.*
-import okhttp3.*
-import java.io.IOException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.lang.Thread.sleep
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
+
+
 class MainActivity : AppCompatActivity() {
-    val currencyRates: HashMap<String, Double> = HashMap()
-    var codeList: ArrayList<String> = arrayListOf()
-    var currencyName: ArrayList<String> = arrayListOf()
-    var valueList: ArrayList<Double> = arrayListOf()
-    var currencyList: ArrayList<Currency> = arrayListOf()
-    var currencyListNames: HashMap<String, Currency> = hashMapOf()
-    var flags: ArrayList<Int> = arrayListOf()
+    private val currencyRates: HashMap<String, Double> = HashMap()
+    //val currencyRates: HashMap<String, Double> = hashMapOf()
+    var valueList: ArrayList<Double> = ArrayList()
+    var currencyList: ArrayList<Currency> = ArrayList()
     lateinit var iHaveCurrency: Currency
     lateinit var itemCurrency: Currency
     var mSpinner: Spinner? = null
     var mSpinner2: Spinner? = null
+    var codeList =
+        arrayListOf("USD", "LBP", "SYP", "EUR", "AED", "SAR", "QAR", "AUD", "GBP", "EGP", "BHD")
+    var currencyName = arrayListOf(
+        "Us Dollar",
+        "ليرة لبنانية",
+        "ليرة سورية",
+        "Euro",
+        "درهم امراتي",
+        "ريال سعودي",
+        "ريال قطري",
+        "Australian Dollar",
+        "GBP",
+        "جنه مصري",
+        "دينار بحرين"
+    )
+    var flags = arrayListOf(
+        flag_usd,
+        flag_lbp,
+        flag_syp,
+        flag_eur,
+        flag_aed,
+        flag_sar,
+        flag_qar,
+        flag_aud,
+        flag_gbp,
+        flag_egp,
+        flag_bhd
+    )
+
+
+    fun initialize() {
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        run()
+
+
+        getJason()
         sleep(2000)
-        codeList =
-            arrayListOf("USD", "LBP", "SYP", "EUR", "AED", "SAR", "QAR", "AUD", "GBP", "EGP", "BHD")
-        currencyName = arrayListOf(
-            "Us Dollar",
-            "ليرة لبنانية",
-            "ليرة سورية",
-            "Euro",
-            "درهم امراتي",
-            "ريال سعودي",
-            "ريال قطري",
-            "Australian Dollar",
-            "GBP",
-            "جنه مصري",
-            "دينار بحرين"
-        )
-        flags = arrayListOf(
-            flag_usd,
-            flag_lbp,
-            flag_syp,
-            flag_eur,
-            flag_aed,
-            flag_sar,
-            flag_qar,
-            flag_aud,
-            flag_gbp,
-            flag_egp,
-            flag_bhd
-        )
-        for (key in codeList) {
-            valueList.add(currencyRates[key]!!)
-        }
-        for (i in 0..10)
-            currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
+        initialize()
+
         //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
         mSpinner = findViewById<View>(R.id.spinner) as Spinner
         mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
-        val mCustomAdapter = SpinnerAdapter(this@MainActivity, currencyName, flags)
+        val mCustomAdapter = SpinnerAdapter(applicationContext, currencyName, flags)
         mSpinner!!.adapter = mCustomAdapter
         mSpinner2!!.adapter = mCustomAdapter
         mSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -122,6 +124,8 @@ class MainActivity : AppCompatActivity() {
         if (validate())
             calculate()
     }
+
+
     @SuppressLint("SetTextI18n")
     private fun validate(): Boolean {
         when {
@@ -167,43 +171,48 @@ class MainActivity : AppCompatActivity() {
                 textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
             }
             else -> {
-                val programmingList = findViewById<RecyclerView>(R.id.recyclerView)
-                programmingList.layoutManager = LinearLayoutManager(this)
+                val currencyList = findViewById<RecyclerView>(R.id.recyclerView)
+                currencyList.layoutManager = LinearLayoutManager(this)
 
-                programmingList.adapter = CurrencyAdapter(moneyList, flags)
+                currencyList.adapter = CurrencyAdapter(moneyList, flags)
             }
         }
     }
-    private val client = OkHttpClient()
-    private val moshi = Moshi.Builder().build()
-    private val ratesJsonAdapter = moshi.adapter(fixer::class.java)
-    @Throws(Exception::class)
-    fun run() {
-        val request = Request.Builder()
-            .url("http://data.fixer.io/api/latest?access_key=997d4f2093f733edadf912c7918d8a84&symbols=USD,LBP,SYP,EUR,AED,SAR,QAR,INR,AUD,GBP,EGP,BHD")
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                    val getCurRates = ratesJsonAdapter.fromJson(response.body!!.source())
-                    val cur = getCurRates!!.rates
-                    for ((k, v) in cur) {
+
+    private fun getJason() {
+        ServiceGenerator.getApi().getCurrencies()
+            .enqueue(object : Callback<Currencies> {
+                override fun onResponse(call: Call<Currencies>, response: Response<Currencies>) {
+                    Log.e(TAG, "log: -----------------------------")
+                    Log.d(TAG, "onResponse: " + response.body())
+                    if (response.raw().networkResponse() != null) {
+                        Log.d(TAG, "onResponse: response is from NETWORK...")
+                    } else if (response.raw().cacheResponse() != null
+                        && response.raw().networkResponse() == null
+                    ) {
+                        Log.d(TAG, "onResponse: response is from CACHE...")
+                    }
+                    val currencies = response.body()
+                    val rates = currencies!!.rates
+                    for ((k, v) in rates) {
                         currencyRates[k] = v
                     }
+                    for (key in codeList) {
+                        valueList.add(currencyRates[key]!!)
+                    }
+                    for (i in 0..10)
+                        currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
+
                 }
-            }
-        })
+
+
+                override fun onFailure(call: Call<Currencies>, t: Throwable) {
+                    Log.e(TAG, "onFailure: ", t)
+                }
+            })
     }
-    @JsonClass(generateAdapter = true)
-    data class fixer(
-        val base: String,
-        val date: String,
-        val rates: Map<String, Double>,
-        val success: Boolean,
-        val timestamp: Int
-    )
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 }
