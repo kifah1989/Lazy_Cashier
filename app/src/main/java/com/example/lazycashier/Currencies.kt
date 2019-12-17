@@ -10,7 +10,7 @@ class Currencies {
     var success: Boolean? = null
     @SerializedName("timestamp")
     @Expose
-    var timestamp: Int? = null
+    var timestamp: Long? = null
     @SerializedName("base")
     @Expose
     var base: String? = null

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputFilter
-import android.text.InputFilter.LengthFilter
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -20,7 +20,9 @@ import kotlinx.android.synthetic.main.main_activity.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.lang.Thread.sleep
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
@@ -63,21 +65,6 @@ class MainActivity : AppCompatActivity() {
 
 
     fun initialize() {
-    }
-
-    override fun onResume() {
-        super.onResume()
-        getJason()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
-        getJason()
-        sleep(2000)
-        initialize()
-
-        //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
         mSpinner = findViewById<View>(R.id.spinner) as Spinner
         mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
         val mCustomAdapter = SpinnerAdapter(applicationContext, currencyName, flags)
@@ -95,10 +82,11 @@ class MainActivity : AppCompatActivity() {
                 val rate = valueList[position]
                 textView3.text = "Amount you have in ${currencyName[position]}"
                 if (rate >= 1000)
-                    editText.filters = arrayOf<InputFilter>(LengthFilter(6))
+                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
                 else
-                    editText.filters = arrayOf<InputFilter>(LengthFilter(3))
+                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(3))
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Another interface callback
             }
@@ -115,18 +103,36 @@ class MainActivity : AppCompatActivity() {
                 val rate2 = valueList[position]
                 textView4.text = "Item Price in ${currencyName[position]}"
                 if (rate2 >= 1000)
-                    editText2.filters = arrayOf<InputFilter>(LengthFilter(6))
+                    editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
                 else
-                    editText2.filters = arrayOf<InputFilter>(LengthFilter(4))
+                    editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(4))
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Another interface callback
             }
         }
     }
+
+    override fun onRestart() {
+        super.onRestart()
+        getJason()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.main_activity)
+        getJason()
+
+
+        //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
+
+    }
     fun click(view: View) {
+        progressBar.visibility = View.VISIBLE
         if (validate())
             calculate()
+        progressBar.visibility = View.GONE
     }
 
 
@@ -183,7 +189,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun getJason() {
+        progressBar.visibility = View.VISIBLE
         ServiceGenerator.getApi().getCurrencies()
             .enqueue(object : Callback<Currencies> {
                 override fun onResponse(call: Call<Currencies>, response: Response<Currencies>) {
@@ -198,7 +206,13 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     val currencies = response.body()
-                    textView2.text = "updated on " + currencies!!.date
+                    val timestamp = currencies!!.timestamp
+
+                    val cal = Calendar.getInstance(Locale.ENGLISH)
+                    cal.timeInMillis = timestamp!! * 1000
+                    val date: String = DateFormat.format("dd-MM-yyyy @ hh:mm a", cal).toString()
+
+                    textView2.text = "updated on " + date
                     val rates = currencies.rates
                     for ((k, v) in rates) {
                         currencyRates[k] = v
@@ -208,54 +222,36 @@ class MainActivity : AppCompatActivity() {
                     }
                     for (i in 0..10)
                         currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
-
+                    initialize()
+                    progressBar.visibility = View.GONE
                 }
-
 
                 override fun onFailure(call: Call<Currencies>, t: Throwable) {
                     Log.e(TAG, "onFailure: ", t)
-                    textView2.text = "last updated on 2019-12-16"
-                    val rates = hashMapOf<String, Double>(
-                        "USD" to 1.113833,
-                        "LBP" to 1691.926067,
-                        "SYP" to 573.624404,
-                        "EUR" to 1.0,
-                        "AED" to 4.091187,
-                        "SAR" to 4.177482,
-                        "QAR" to 4.055744,
-                        "AUD" to 1.617846,
-                        "GBP" to 0.833309,
-                        "EGP" to 17.875898,
-                        "BHD" to 0.419999
-                    )
-                    for ((k, v) in rates) {
-                        currencyRates[k] = v
-                    }
-                    for (key in codeList) {
-                        valueList.add(currencyRates[key]!!)
-                    }
-                    for (i in 0..10)
-                        currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
                     val builder: android.app.AlertDialog.Builder =
                         android.app.AlertDialog.Builder(this@MainActivity)
                     builder.setMessage("This app needs Internet at the first run. Please turn on your data to get the latest currency rate from the internet.")
-                        .setTitle("Welcome to Lazy Cashier")
+                        .setTitle("Lazy Cashier needs internet")
                         .setCancelable(false)
                         .setPositiveButton(
                             "Turn On Wifi or Data"
                         ) { dialog, id ->
                             val i = Intent(Settings.ACTION_WIRELESS_SETTINGS)
                             startActivity(i)
+
                         }
-                        .setNegativeButton("Cancel",
-                            { dialog, id -> this@MainActivity.finish() }
-                        )
+                        .setNegativeButton(
+                            "retry"
+                        ) { dialog, id ->
+                            val intent = intent
+                            finish()
+                            startActivity(intent)
+                        }
                     val alert: android.app.AlertDialog? = builder.create()
                     alert!!.show()
                 }
             })
     }
-
 
     companion object {
         private const val TAG = "MainActivity"
