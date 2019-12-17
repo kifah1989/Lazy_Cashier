@@ -1,7 +1,9 @@
 package com.example.lazycashier
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
 import android.util.Log
@@ -63,12 +65,14 @@ class MainActivity : AppCompatActivity() {
     fun initialize() {
     }
 
+    override fun onResume() {
+        super.onResume()
+        getJason()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-
-
         getJason()
         sleep(2000)
         initialize()
@@ -192,8 +196,10 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         Log.d(TAG, "onResponse: response is from CACHE...")
                     }
+
                     val currencies = response.body()
-                    val rates = currencies!!.rates
+                    textView2.text = "updated on " + currencies!!.date
+                    val rates = currencies.rates
                     for ((k, v) in rates) {
                         currencyRates[k] = v
                     }
@@ -208,9 +214,48 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onFailure(call: Call<Currencies>, t: Throwable) {
                     Log.e(TAG, "onFailure: ", t)
+                    textView2.text = "last updated on 2019-12-16"
+                    val rates = hashMapOf<String, Double>(
+                        "USD" to 1.113833,
+                        "LBP" to 1691.926067,
+                        "SYP" to 573.624404,
+                        "EUR" to 1.0,
+                        "AED" to 4.091187,
+                        "SAR" to 4.177482,
+                        "QAR" to 4.055744,
+                        "AUD" to 1.617846,
+                        "GBP" to 0.833309,
+                        "EGP" to 17.875898,
+                        "BHD" to 0.419999
+                    )
+                    for ((k, v) in rates) {
+                        currencyRates[k] = v
+                    }
+                    for (key in codeList) {
+                        valueList.add(currencyRates[key]!!)
+                    }
+                    for (i in 0..10)
+                        currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
+                    val builder: android.app.AlertDialog.Builder =
+                        android.app.AlertDialog.Builder(this@MainActivity)
+                    builder.setMessage("This app needs Internet at the first run. Please turn on your data to get the latest currency rate from the internet.")
+                        .setTitle("Welcome to Lazy Cashier")
+                        .setCancelable(false)
+                        .setPositiveButton(
+                            "Turn On Wifi or Data"
+                        ) { dialog, id ->
+                            val i = Intent(Settings.ACTION_WIRELESS_SETTINGS)
+                            startActivity(i)
+                        }
+                        .setNegativeButton("Cancel",
+                            { dialog, id -> this@MainActivity.finish() }
+                        )
+                    val alert: android.app.AlertDialog? = builder.create()
+                    alert!!.show()
                 }
             })
     }
+
 
     companion object {
         private const val TAG = "MainActivity"
