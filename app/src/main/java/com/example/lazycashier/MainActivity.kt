@@ -37,15 +37,15 @@ class MainActivity : AppCompatActivity() {
     var codeList =
         arrayListOf("USD", "LBP", "SYP", "EUR", "AED", "SAR", "QAR", "AUD", "GBP", "EGP", "BHD")
     var currencyName = arrayListOf(
-        "Us Dollar",
+        "US Dollar",
         "ليرة لبنانية",
         "ليرة سورية",
         "Euro",
         "درهم امراتي",
         "ريال سعودي",
         "ريال قطري",
-        "Australian Dollar",
-        "GBP",
+        "AU Dollar",
+        "British P",
         "جنه مصري",
         "دينار بحرين"
     )
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     fun initialize() {
         mSpinner = findViewById<View>(R.id.spinner) as Spinner
         mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
-        val mCustomAdapter = SpinnerAdapter(applicationContext, currencyName, flags)
+        val mCustomAdapter = SpinnerAdapter(this@MainActivity, currencyName, flags)
         mSpinner!!.adapter = mCustomAdapter
         mSpinner2!!.adapter = mCustomAdapter
         mSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                 if (rate >= 1000)
                     editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
                 else
-                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(3))
+                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(4))
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+
         getJason()
 
 
@@ -129,10 +130,8 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun click(view: View) {
-        progressBar.visibility = View.VISIBLE
         if (validate())
             calculate()
-        progressBar.visibility = View.GONE
     }
 
 
@@ -158,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
     fun calculate() {
+
         val ihave = editText.text.toString().toDouble()
         val itemPrice = editText2.text.toString().toDouble()
         val iHaveMoney = Money(ihave, iHaveCurrency)
@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity() {
         textView6.text = "= " + itemtoihave
         when {
             iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
-                editText.error = "you dont have enough money"
+                editText.error = "not enough money"
                 textView.text = ""
             }
             returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
@@ -182,7 +182,8 @@ class MainActivity : AppCompatActivity() {
             }
             else -> {
                 val currencyList = findViewById<RecyclerView>(R.id.recyclerView)
-                currencyList.layoutManager = LinearLayoutManager(this)
+
+                currencyList.layoutManager = LinearLayoutManager(this@MainActivity)
 
                 currencyList.adapter = CurrencyAdapter(moneyList, flags)
             }
