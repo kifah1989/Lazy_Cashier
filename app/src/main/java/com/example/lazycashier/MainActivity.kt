@@ -1,6 +1,5 @@
 package com.example.lazycashier
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -34,33 +33,33 @@ class MainActivity : AppCompatActivity() {
     lateinit var itemCurrency: Currency
     var mSpinner: Spinner? = null
     var mSpinner2: Spinner? = null
-    var codeList =
-        arrayListOf("USD", "LBP", "SYP", "EUR", "AED", "SAR", "QAR", "AUD", "GBP", "EGP", "BHD")
+    var codeList: ArrayList<String> = arrayListOf()
+    val moneyList = arrayListOf<Money>()
     var currencyName = arrayListOf(
-        "US Dollar",
-        "ليرة لبنانية",
-        "ليرة سورية",
-        "Euro",
         "درهم امراتي",
-        "ريال سعودي",
-        "ريال قطري",
         "AU Dollar",
-        "British P",
+        "دينار بحرين",
         "جنه مصري",
-        "دينار بحرين"
+        "Euro",
+        "British P",
+        "ليرة لبنانية",
+        "ريال قطري",
+        "ريال سعودي",
+        "ليرة سورية",
+        "US Dollar"
     )
     var flags = arrayListOf(
-        flag_usd,
-        flag_lbp,
-        flag_syp,
-        flag_eur,
         flag_aed,
-        flag_sar,
-        flag_qar,
         flag_aud,
-        flag_gbp,
+        flag_bhd,
         flag_egp,
-        flag_bhd
+        flag_eur,
+        flag_gbp,
+        flag_lbp,
+        flag_qar,
+        flag_sar,
+        flag_syp,
+        flag_usd
     )
 
 
@@ -130,63 +129,63 @@ class MainActivity : AppCompatActivity() {
 
     }
     fun click(view: View) {
-        if (validate())
+
             calculate()
     }
 
 
-    @SuppressLint("SetTextI18n")
-    private fun validate(): Boolean {
-        when {
-            editText.text.isEmpty() -> {
-                editText.error = "please enter amount"
-                textView.text = ""
-                textView5.text = ""
-                textView6.text = ""
-                return false
-            }
-            editText2.text.isEmpty() -> {
-                editText2.error = "please enter amount"
-                textView5.text = ""
-                textView6.text = ""
-                return false
-            }
-            else -> {
-                return true
-            }
-        }
-    }
+
     fun calculate() {
-
-        val ihave = editText.text.toString().toDouble()
-        val itemPrice = editText2.text.toString().toDouble()
-        val iHaveMoney = Money(ihave, iHaveCurrency)
-        val itemMoney = Money(itemPrice, itemCurrency)
-        val ihavetoitem = iHaveMoney.convertInto(itemCurrency)
-        val itemtoihave = itemMoney.convertInto(iHaveCurrency)
-        val returnMoney1 = iHaveMoney - itemtoihave
-        val returnMoney2 = ihavetoitem - itemMoney
-        val moneyList = arrayListOf<Money>()
-        for (currency in currencyList) {
-            moneyList.add(Money(returnMoney1.convertInto(currency).amount, currency))
-        }
-        textView5.text = "= " + ihavetoitem
-        textView6.text = "= " + itemtoihave
-        when {
-            iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
-                editText.error = "not enough money"
-                textView.text = ""
+        val currencyListview = findViewById<RecyclerView>(R.id.recyclerView)
+        try {
+            val ihave = editText.text.toString().toDouble()
+            val itemPrice = editText2.text.toString().toDouble()
+            val iHaveMoney = Money(ihave, iHaveCurrency)
+            val itemMoney = Money(itemPrice, itemCurrency)
+            val ihavetoitem = iHaveMoney.convertInto(itemCurrency)
+            val itemtoihave = itemMoney.convertInto(iHaveCurrency)
+            val returnMoney1 = iHaveMoney - itemtoihave
+            val returnMoney2 = ihavetoitem - itemMoney
+            for (currency in currencyList) {
+                moneyList.add(Money(returnMoney1.convertInto(currency).amount, currency))
             }
-            returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
-                textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
-            }
-            else -> {
-                val currencyList = findViewById<RecyclerView>(R.id.recyclerView)
+            textView5.text = "= " + ihavetoitem
+            textView6.text = "= " + itemtoihave
+            when {
+                iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
+                    editText.error = "not enough money"
+                    textView5.text = ""
+                    textView6.text = ""
+                    moneyList.clear()
+                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
+                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                }
+                returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
+                    textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
+                    textView5.text = ""
+                    textView6.text = ""
+                    moneyList.clear()
+                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
+                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
 
-                currencyList.layoutManager = LinearLayoutManager(this@MainActivity)
+                }
+                else -> {
 
-                currencyList.adapter = CurrencyAdapter(moneyList, flags)
+                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
+
+                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                }
             }
+        } catch (ex: Exception) {
+            moneyList.clear()
+            currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
+            currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+            if (editText.text.isEmpty())
+                editText.error = "please enter amount"
+            if (editText2.text.isEmpty())
+                editText2.error = "please enter amount"
+            textView5.text = ""
+            textView6.text = ""
         }
     }
 
@@ -214,13 +213,13 @@ class MainActivity : AppCompatActivity() {
                     val date: String = DateFormat.format("dd-MM-yyyy @ hh:mm a", cal).toString()
 
                     textView2.text = "updated on " + date
-                    val rates = currencies.rates
-                    for ((k, v) in rates) {
-                        currencyRates[k] = v
-                    }
-                    for (key in codeList) {
-                        valueList.add(currencyRates[key]!!)
-                    }
+                    val rates = currencies.rates.toSortedMap()
+
+                    currencyRates.putAll(rates)
+
+                    valueList.addAll(rates.values)
+
+                    codeList.addAll(rates.keys)
                     for (i in 0..10)
                         currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
                     initialize()

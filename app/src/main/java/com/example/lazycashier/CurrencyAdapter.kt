@@ -10,8 +10,9 @@ import de.tobiasschuerg.money.Money
 
 
 class CurrencyAdapter(
-    private val data: ArrayList<Money>,
-    private val flags: ArrayList<Int>
+    private val symbol: ArrayList<Money>,
+    private val flags: ArrayList<Int>,
+    private val name: ArrayList<String>
 ) :
     RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
     override fun onCreateViewHolder(
@@ -27,24 +28,28 @@ class CurrencyAdapter(
         viewHolder: CurrencyViewHolder,
         i: Int
     ) {
-        val title = data[i]
+        val title = symbol[i]
         viewHolder.txt.text = title.toString()
         viewHolder.m.setImageResource(flags[i])
+        viewHolder.name.text = name[i]
     }
 
     override fun getItemCount(): Int {
-        return data.size
+        return symbol.size
+    }
+
+    fun clear() {
+        val size = symbol.size
+        symbol.clear()
+        notifyItemRangeRemoved(0, size)
     }
 
     inner class CurrencyViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        var m: ImageView
-        var txt: TextView
+        var m: ImageView = itemView.findViewById(R.id.curimg)
+        var txt: TextView = itemView.findViewById(R.id.curtxt)
+        var name: TextView = itemView.findViewById(R.id.curname)
 
-        init {
-            m = itemView.findViewById(R.id.curimg)
-            txt = itemView.findViewById(R.id.curtxt)
-        }
     }
 
 }
