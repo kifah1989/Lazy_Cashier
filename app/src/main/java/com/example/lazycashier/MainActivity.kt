@@ -73,8 +73,6 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                iHaveCurrency =
-                    Currency(codeList[position]!!, currencyName[position], valueList[position])
                 val rate = valueList[position]
                 textView3.text = "Amount you have in ${currencyName[position]}"
                 if (rate >= 1000)
@@ -94,8 +92,6 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                itemCurrency =
-                    Currency(codeList[position]!!, currencyName[position], valueList[position])
                 val rate2 = valueList[position]
                 textView4.text = "Item Price in ${currencyName[position]}"
                 if (rate2 >= 1000)
@@ -166,10 +162,13 @@ class MainActivity : AppCompatActivity() {
         try {
             val ihave = editText.text.toString().toDouble()
             val itemPrice = editText2.text.toString().toDouble()
-            val iHaveMoney = Money(ihave, iHaveCurrency)
-            val itemMoney = Money(itemPrice, itemCurrency)
-            val ihavetoitem = iHaveMoney.convertInto(itemCurrency)
-            val itemtoihave = itemMoney.convertInto(iHaveCurrency)
+            val selectedCurrency1: Int = spinner.selectedItemPosition
+            val selectedCurrency2: Int = spinner2.selectedItemPosition
+
+            val iHaveMoney = Money(ihave, currencyList[selectedCurrency1]!!)
+            val itemMoney = Money(itemPrice, currencyList[selectedCurrency2]!!)
+            val ihavetoitem = iHaveMoney.convertInto(currencyList[selectedCurrency2]!!)
+            val itemtoihave = itemMoney.convertInto(currencyList[selectedCurrency1]!!)
             val returnMoney1 = iHaveMoney - itemtoihave
             val returnMoney2 = ihavetoitem - itemMoney
             for (i in 0..10) {
@@ -185,8 +184,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                     textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
-                    textView5.text = ""
-                    textView6.text = ""
+                    textView5.text = "a" + returnMoney1
+                    textView6.text = "b" + returnMoney2
                 }
                 else -> {
                     currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
