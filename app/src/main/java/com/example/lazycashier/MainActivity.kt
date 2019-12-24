@@ -20,35 +20,21 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
-    private val currencyRates: HashMap<String, Double> = HashMap()
-    //val currencyRates: HashMap<String, Double> = hashMapOf()
-    var valueList: ArrayList<Double> = ArrayList()
-    var currencyList: ArrayList<Currency> = ArrayList()
+    private var rates: SortedMap<String, Double>? = null
+    private var timestamp: Long? = null
+    private var currencies: Currencies? = null
+    private var currencyList = Array<Currency?>(11) { null }
+    private var valueList: DoubleArray = DoubleArray(11)
     lateinit var iHaveCurrency: Currency
     lateinit var itemCurrency: Currency
-    var mSpinner: Spinner? = null
-    var mSpinner2: Spinner? = null
-    var codeList: ArrayList<String> = arrayListOf()
-    val moneyList = arrayListOf<Money>()
-    var currencyName = arrayListOf(
-        "درهم امراتي",
-        "AU Dollar",
-        "دينار بحرين",
-        "جنه مصري",
-        "Euro",
-        "British P",
-        "ليرة لبنانية",
-        "ريال قطري",
-        "ريال سعودي",
-        "ليرة سورية",
-        "US Dollar"
-    )
-    var flags = arrayListOf(
+    private var mSpinner: Spinner? = null
+    private var mSpinner2: Spinner? = null
+    private var codeList = Array<String?>(11) { null }
+    var moneyList = Array<Money?>(11) { null }
+    private val flags = arrayOf(
         flag_aed,
         flag_aud,
         flag_bhd,
@@ -61,23 +47,34 @@ class MainActivity : AppCompatActivity() {
         flag_syp,
         flag_usd
     )
+    private val currencyName = arrayOf(
+        "درهم امراتي",
+        "AU Dollar",
+        "دينار بحرين",
+        "جنه مصري",
+        "Euro",
+        "British P",
+        "ليرة لبنانية",
+        "ريال قطري",
+        "ريال سعودي",
+        "ليرة سورية",
+        "US Dollar"
+    )
 
 
-    fun initialize() {
-        mSpinner = findViewById<View>(R.id.spinner) as Spinner
-        mSpinner2 = findViewById<View>(R.id.spinner2) as Spinner
+    private fun initializeui() {
         val mCustomAdapter = SpinnerAdapter(this@MainActivity, currencyName, flags)
-        mSpinner!!.adapter = mCustomAdapter
-        mSpinner2!!.adapter = mCustomAdapter
-        mSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinner.adapter = mCustomAdapter
+        spinner2.adapter = mCustomAdapter
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View,
+                parent: AdapterView<*>?,
+                view: View?,
                 position: Int,
                 id: Long
             ) {
-                // Display the selected item text on text view
-                iHaveCurrency = currencyList[position]
+                iHaveCurrency =
+                    Currency(codeList[position]!!, currencyName[position], valueList[position])
                 val rate = valueList[position]
                 textView3.text = "Amount you have in ${currencyName[position]}"
                 if (rate >= 1000)
@@ -90,15 +87,15 @@ class MainActivity : AppCompatActivity() {
                 // Another interface callback
             }
         }
-        mSpinner2!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View,
+                parent: AdapterView<*>?,
+                view: View?,
                 position: Int,
                 id: Long
             ) {
-                // Display the selected item text on text view
-                itemCurrency = currencyList[position]
+                itemCurrency =
+                    Currency(codeList[position]!!, currencyName[position], valueList[position])
                 val rate2 = valueList[position]
                 textView4.text = "Item Price in ${currencyName[position]}"
                 if (rate2 >= 1000)
@@ -113,21 +110,49 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        getJason()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
         getJason()
-
+        initializeui()
 
         //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
 
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+
+        val first = spinner.selectedItemPosition
+        val second = spinner2.selectedItemPosition
+        outState.putInt("first", first)
+        outState.putInt("first", second)
+        outState.putLong("timestamp", timestamp!!)
+        outState.putDoubleArray("valueList", valueList)
+        outState.putStringArray("codeList", codeList)
+
+
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        val pos = savedInstanceState.getInt("first")
+        val pos2 = savedInstanceState.getInt("second")
+        spinner.setSelection(pos)
+        spinner2.setSelection(pos2)
+
+        val time = savedInstanceState.getLong("timestamp")
+        timestamp = time
+        val vlList = savedInstanceState.getDoubleArray("valueList")
+        valueList = vlList!!
+        val codList = savedInstanceState.getStringArray("codeList")
+        codeList = codList!!
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+
     fun click(view: View) {
 
             calculate()
@@ -136,6 +161,7 @@ class MainActivity : AppCompatActivity() {
 
 
     fun calculate() {
+
         val currencyListview = findViewById<RecyclerView>(R.id.recyclerView)
         try {
             val ihave = editText.text.toString().toDouble()
@@ -146,8 +172,8 @@ class MainActivity : AppCompatActivity() {
             val itemtoihave = itemMoney.convertInto(iHaveCurrency)
             val returnMoney1 = iHaveMoney - itemtoihave
             val returnMoney2 = ihavetoitem - itemMoney
-            for (currency in currencyList) {
-                moneyList.add(Money(returnMoney1.convertInto(currency).amount, currency))
+            for (i in 0..10) {
+                moneyList[i] = (returnMoney1.convertInto(currencyList[i]!!))
             }
             textView5.text = "= " + ihavetoitem
             textView6.text = "= " + itemtoihave
@@ -156,30 +182,18 @@ class MainActivity : AppCompatActivity() {
                     editText.error = "not enough money"
                     textView5.text = ""
                     textView6.text = ""
-                    moneyList.clear()
-                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                     textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
                     textView5.text = ""
                     textView6.text = ""
-                    moneyList.clear()
-                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
-
                 }
                 else -> {
-
                     currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-
                     currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
                 }
             }
         } catch (ex: Exception) {
-            moneyList.clear()
-            currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-            currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
             if (editText.text.isEmpty())
                 editText.error = "please enter amount"
             if (editText2.text.isEmpty())
@@ -205,24 +219,33 @@ class MainActivity : AppCompatActivity() {
                         Log.d(TAG, "onResponse: response is from CACHE...")
                     }
 
-                    val currencies = response.body()
-                    val timestamp = currencies!!.timestamp
+                    currencies = response.body()
+
+                    timestamp = currencies!!.timestamp
 
                     val cal = Calendar.getInstance(Locale.ENGLISH)
                     cal.timeInMillis = timestamp!! * 1000
                     val date: String = DateFormat.format("dd-MM-yyyy @ hh:mm a", cal).toString()
 
                     textView2.text = "updated on " + date
-                    val rates = currencies.rates.toSortedMap()
+                    rates = currencies!!.rates.toSortedMap()
 
-                    currencyRates.putAll(rates)
+                    var i = 0
+                    for (values in rates!!.values) {
+                        valueList[i] = values
+                        i++
+                    }
+                    i = 0
+                    for (keys in rates!!.keys) {
+                        codeList[i] = keys
+                        i++
 
-                    valueList.addAll(rates.values)
+                    }
 
-                    codeList.addAll(rates.keys)
-                    for (i in 0..10)
-                        currencyList.add(Currency(codeList[i], currencyName[i], valueList[i]))
-                    initialize()
+                    for (i in 0..10) {
+                        currencyList[i] = (Currency(codeList[i]!!, currencyName[i], valueList[i]))
+                    }
+
                     progressBar.visibility = View.GONE
                 }
 

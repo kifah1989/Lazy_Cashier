@@ -10,9 +10,9 @@ import de.tobiasschuerg.money.Money
 
 
 class CurrencyAdapter(
-    private val symbol: ArrayList<Money>,
-    private val flags: ArrayList<Int>,
-    private val name: ArrayList<String>
+    private val symbol: Array<Money?>,
+    private val flags: Array<Int>,
+    private val name: Array<String>
 ) :
     RecyclerView.Adapter<CurrencyAdapter.CurrencyViewHolder>() {
     override fun onCreateViewHolder(
@@ -38,11 +38,6 @@ class CurrencyAdapter(
         return symbol.size
     }
 
-    fun clear() {
-        val size = symbol.size
-        symbol.clear()
-        notifyItemRangeRemoved(0, size)
-    }
 
     inner class CurrencyViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {

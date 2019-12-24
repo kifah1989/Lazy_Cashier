@@ -20,8 +20,6 @@ class Currencies {
     @SerializedName("rates")
     @Expose
     var rates: HashMap<String, Double> = HashMap()
-
-
 }
 
 

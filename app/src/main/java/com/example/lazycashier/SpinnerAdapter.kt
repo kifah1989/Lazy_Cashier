@@ -13,8 +13,8 @@ import android.widget.TextView
  */
 class SpinnerAdapter(
     var mContext: Context,
-    var spinnerTitles: ArrayList<String>,
-    var spinnerImages: ArrayList<Int>
+    var spinnerTitles: Array<String>,
+    var spinnerImages: Array<Int>
 ) :
     ArrayAdapter<String?>(mContext, R.layout.custom_spinner) {
     override fun getDropDownView(
