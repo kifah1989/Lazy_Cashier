@@ -3,6 +3,7 @@ package com.example.lazycashier
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.text.InputFilter
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.View
@@ -74,6 +75,18 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
+                val editText = findViewById<EditText>(R.id.editText)
+                val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
+
+                textInputLayout.isCounterEnabled = true
+                val rate2 = valueList[position]
+                if (rate2 >= 1000) {
+                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
+                    textInputLayout.counterMaxLength = 6
+                } else {
+                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(5))
+                    textInputLayout.counterMaxLength = 5
+                }
 
             }
 
@@ -88,6 +101,19 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
+                val editText2 = findViewById<EditText>(R.id.editText2)
+                val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
+                textInputLayout2.isCounterEnabled = true
+                val rate2 = valueList[position]
+                if (rate2 >= 1000) {
+                    editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
+                    textInputLayout2.counterMaxLength = 6
+
+                } else {
+                    editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(5))
+                    textInputLayout2.counterMaxLength = 5
+
+                }
 
             }
 
@@ -198,7 +224,7 @@ class MainActivity : AppCompatActivity() {
                 textInputLayout.isErrorEnabled = false
 
             if (editText2.text.isEmpty()) {
-                textInputLayout2.error = "please enter amount"
+                textInputLayout2.error = "please enter item price"
             } else
                 textInputLayout2.isErrorEnabled = false
 

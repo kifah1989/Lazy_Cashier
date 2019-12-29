@@ -1,11 +1,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <item name="android:background">#ffffffff</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="spinnerStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimaryDark">@color/colorAccent</item>
         <item name="buttonStyle">@style/MyButtonStyle</item>
         <item name="editTextStyle">@style/MyEditStyle</item>
         <item name="android:textViewStyle">@style/MyTextStyle</item>
@@ -16,7 +18,7 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="MyButtonStyle" parent="Widget.AppCompat.Button">
+    <style name="MyButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:textSize">14sp</item>
     </style>
 
