@@ -3,16 +3,17 @@ package com.example.lazycashier
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import android.text.InputFilter
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.EditText
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lazycashier.R.drawable.*
+import com.google.android.material.textfield.TextInputLayout
 import de.tobiasschuerg.money.Currency
 import de.tobiasschuerg.money.Money
 import kotlinx.android.synthetic.main.main_activity.*
@@ -73,12 +74,7 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                val rate = valueList[position]
-                textView3.text = "Amount you have in ${currencyName[position]}"
-                if (rate >= 1000)
-                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
-                else
-                    editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(4))
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -92,12 +88,7 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                val rate2 = valueList[position]
-                textView4.text = "Item Price in ${currencyName[position]}"
-                if (rate2 >= 1000)
-                    editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
-                else
-                    editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(4))
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -151,12 +142,17 @@ class MainActivity : AppCompatActivity() {
 
     fun click(view: View) {
 
-            calculate()
+        calculate()
     }
 
-
-
     fun calculate() {
+
+        val editText = findViewById<EditText>(R.id.editText)
+        val editText2 = findViewById<EditText>(R.id.editText2)
+        val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
+        val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
+
+
 
         val currencyListview = findViewById<RecyclerView>(R.id.recyclerView)
         try {
@@ -178,25 +174,34 @@ class MainActivity : AppCompatActivity() {
             textView6.text = "= " + itemtoihave
             when {
                 iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
-                    editText.error = "not enough money"
+                    textInputLayout.error = "not enough money"
                     textView5.text = ""
                     textView6.text = ""
+                    textInputLayout2.isErrorEnabled = false
+
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
-                    textView.text = iHaveMoney.toString() + " is equal to " + itemMoney.toString()
-                    textView5.text = "a" + returnMoney1
-                    textView6.text = "b" + returnMoney2
+                    textView5.text = "no change"
                 }
                 else -> {
                     currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
                     currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                    textInputLayout.isErrorEnabled = false
+                    textInputLayout2.isErrorEnabled = false
+
                 }
             }
         } catch (ex: Exception) {
-            if (editText.text.isEmpty())
-                editText.error = "please enter amount"
-            if (editText2.text.isEmpty())
-                editText2.error = "please enter amount"
+            if (editText.text.isEmpty()) {
+                textInputLayout.error = "please enter amount"
+            } else
+                textInputLayout.isErrorEnabled = false
+
+            if (editText2.text.isEmpty()) {
+                textInputLayout2.error = "please enter amount"
+            } else
+                textInputLayout2.isErrorEnabled = false
+
             textView5.text = ""
             textView6.text = ""
         }
