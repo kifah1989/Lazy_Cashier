@@ -2,7 +2,6 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
-        <item name="android:background">#ffffffff</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="spinnerStyle">@style/Widget.AppCompat.Spinner.DropDown.ActionBar</item>
         <!-- Customize your theme here. -->
@@ -25,5 +24,11 @@
     <style name="MyTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14sp</item>
     </style>
+
+    <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/colorAccent</item>
+        <item name="boxStrokeWidth">2dp</item>
+    </style>
+
 
 </resources>

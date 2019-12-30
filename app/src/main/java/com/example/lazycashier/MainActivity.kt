@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 id: Long
             ) {
                 val editText2 = findViewById<EditText>(R.id.editText2)
-                val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
+                val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout)
                 textInputLayout2.isCounterEnabled = true
                 val rate2 = valueList[position]
                 if (rate2 >= 1000) {
@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
         val editText = findViewById<EditText>(R.id.editText)
         val editText2 = findViewById<EditText>(R.id.editText2)
         val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
-        val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
+        val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout)
 
 
 
