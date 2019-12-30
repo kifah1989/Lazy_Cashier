@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 id: Long
             ) {
                 val editText2 = findViewById<EditText>(R.id.editText2)
-                val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout)
+                val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
                 textInputLayout2.isCounterEnabled = true
                 val rate2 = valueList[position]
                 if (rate2 >= 1000) {
@@ -176,12 +176,14 @@ class MainActivity : AppCompatActivity() {
         val editText = findViewById<EditText>(R.id.editText)
         val editText2 = findViewById<EditText>(R.id.editText2)
         val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
-        val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout)
+        val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
 
 
 
         val currencyListview = findViewById<RecyclerView>(R.id.recyclerView)
         try {
+            textInputLayout.error = null
+            textInputLayout2.error = null
             val ihave = editText.text.toString().toDouble()
             val itemPrice = editText2.text.toString().toDouble()
             val selectedCurrency1: Int = spinner.selectedItemPosition
@@ -201,12 +203,14 @@ class MainActivity : AppCompatActivity() {
             when {
                 iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                     textInputLayout.error = "not enough money"
+                    textInputLayout.isCounterEnabled = false
                     textView5.text = ""
                     textView6.text = ""
                     textInputLayout2.isErrorEnabled = false
 
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
+                    textView5.text = "no change"
                     textView5.text = "no change"
                 }
                 else -> {
@@ -220,13 +224,16 @@ class MainActivity : AppCompatActivity() {
         } catch (ex: Exception) {
             if (editText.text.isEmpty()) {
                 textInputLayout.error = "please enter amount"
-            } else
-                textInputLayout.isErrorEnabled = false
+                textInputLayout.isCounterEnabled = false
+
+            }
+
 
             if (editText2.text.isEmpty()) {
                 textInputLayout2.error = "please enter item price"
-            } else
-                textInputLayout2.isErrorEnabled = false
+                textInputLayout2.isCounterEnabled = false
+
+            }
 
             textView5.text = ""
             textView6.text = ""
