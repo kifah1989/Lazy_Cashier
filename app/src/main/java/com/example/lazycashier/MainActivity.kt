@@ -3,7 +3,9 @@ package com.example.lazycashier
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
 import android.text.InputFilter
+import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.View
@@ -77,10 +79,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val editText = findViewById<EditText>(R.id.editText)
                 val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
-
-                textInputLayout.isCounterEnabled = true
-                val rate2 = valueList[position]
-                if (rate2 >= 1000) {
+                val rate = valueList[position]
+                if (rate >= 1000) {
                     editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
                     textInputLayout.counterMaxLength = 6
                 } else {
@@ -103,20 +103,15 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val editText2 = findViewById<EditText>(R.id.editText2)
                 val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
-                textInputLayout2.isCounterEnabled = true
-                val rate2 = valueList[position]
-                if (rate2 >= 1000) {
+                val rate = valueList[position]
+                if (rate >= 1000) {
                     editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(6))
                     textInputLayout2.counterMaxLength = 6
-
                 } else {
                     editText2.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(5))
                     textInputLayout2.counterMaxLength = 5
-
                 }
-
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {
                 // Another interface callback
             }
@@ -130,9 +125,58 @@ class MainActivity : AppCompatActivity() {
 
         getJason()
         initializeui()
+        val editText = findViewById<EditText>(R.id.editText)
+        val editText2 = findViewById<EditText>(R.id.editText2)
+        val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
+        val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
 
-        //USD,AED,EUR,LBP,AUD.BHD,EGP,GBP,QAR,SAR,SYP,INR
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
 
+
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                textInputLayout.isErrorEnabled = false
+                textInputLayout.isCounterEnabled = true
+            }
+
+            override fun afterTextChanged(s: Editable) {
+            }
+        })
+
+        editText2.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                textInputLayout2.isErrorEnabled = false
+                textInputLayout2.isCounterEnabled = true
+            }
+
+            override fun afterTextChanged(s: Editable) { // TODO Auto-generated method stub
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -182,8 +226,6 @@ class MainActivity : AppCompatActivity() {
 
         val currencyListview = findViewById<RecyclerView>(R.id.recyclerView)
         try {
-            textInputLayout.error = null
-            textInputLayout2.error = null
             val ihave = editText.text.toString().toDouble()
             val itemPrice = editText2.text.toString().toDouble()
             val selectedCurrency1: Int = spinner.selectedItemPosition
@@ -204,20 +246,27 @@ class MainActivity : AppCompatActivity() {
                 iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
                     textInputLayout.error = "not enough money"
                     textInputLayout.isCounterEnabled = false
-                    textView5.text = ""
-                    textView6.text = ""
-                    textInputLayout2.isErrorEnabled = false
+                    textView5.text = "= " + ihavetoitem
+                    textView6.text = "= " + itemtoihave
+                    moneyList = emptyArray()
+                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
 
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                     textView5.text = "no change"
-                    textView5.text = "no change"
+                    textView6.text = "no change"
+                    moneyList = emptyArray()
+                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+
                 }
                 else -> {
-                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
                     textInputLayout.isErrorEnabled = false
                     textInputLayout2.isErrorEnabled = false
+                    progressBar.visibility = View.VISIBLE
+                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
+                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                    progressBar.visibility = View.GONE
+
 
                 }
             }
