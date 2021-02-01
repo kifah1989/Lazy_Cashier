@@ -1,6 +1,7 @@
 package com.example.lazycashier
 
 import android.content.Intent
+import android.media.Image
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
@@ -11,6 +12,7 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -122,7 +124,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-
         getJason()
         initializeui()
         val editText = findViewById<EditText>(R.id.editText)
@@ -249,22 +250,47 @@ class MainActivity : AppCompatActivity() {
                     textView5.text = "= " + ihavetoitem
                     textView6.text = "= " + itemtoihave
                     moneyList = emptyArray()
-                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                    imageView4.setImageResource(flags[spinner.selectedItemPosition])
+                    textView7.text = currencyName[spinner.selectedItemPosition]
+                    textView8.text = moneyList[spinner.selectedItemPosition].toString()
+
+                    imageView5.setImageResource(flags[spinner2.selectedItemPosition])
+                    textView9.text = currencyName[spinner2.selectedItemPosition]
+                    textView9.text = moneyList[spinner2.selectedItemPosition].toString()
+
+                    //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
 
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                     textView5.text = "no change"
                     textView6.text = "no change"
                     moneyList = emptyArray()
-                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                    imageView4.setImageResource(flags[spinner.selectedItemPosition])
+                    textView7.text = currencyName[spinner.selectedItemPosition]
+                    textView8.text = moneyList[spinner.selectedItemPosition].toString()
+
+                    imageView5.setImageResource(flags[spinner2.selectedItemPosition])
+                    textView9.text = currencyName[spinner2.selectedItemPosition]
+                    textView9.text = moneyList[spinner2.selectedItemPosition].toString()
+
+
+                    //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
 
                 }
                 else -> {
                     textInputLayout.isErrorEnabled = false
                     textInputLayout2.isErrorEnabled = false
                     progressBar.visibility = View.VISIBLE
-                    currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-                    currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
+                    imageView4.setImageResource(flags[spinner.selectedItemPosition])
+                    textView7.text = currencyName[spinner.selectedItemPosition]
+                    textView8.text = moneyList[spinner.selectedItemPosition].toString()
+
+                    imageView5.setImageResource(flags[spinner2.selectedItemPosition])
+                    textView9.text = currencyName[spinner2.selectedItemPosition]
+                    textView10.text = moneyList[spinner2.selectedItemPosition].toString()
+
+                    //currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
+                    //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
                     progressBar.visibility = View.GONE
 
 
