@@ -1,7 +1,6 @@
 package com.example.lazycashier
 
 import android.content.Intent
-import android.media.Image
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
@@ -12,12 +11,11 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lazycashier.R.drawable.*
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import de.tobiasschuerg.money.Currency
 import de.tobiasschuerg.money.Money
@@ -130,6 +128,10 @@ class MainActivity : AppCompatActivity() {
         val editText2 = findViewById<EditText>(R.id.editText2)
         val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
         val textInputLayout2 = findViewById<TextInputLayout>(R.id.textInputLayout2)
+        val button2: View = findViewById(R.id.button2)
+        button2.setOnClickListener {
+            calculate()
+        }
 
         editText.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(
@@ -211,13 +213,10 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun click(view: View) {
 
-        calculate()
-    }
+
 
     fun calculate() {
-
         val editText = findViewById<EditText>(R.id.editText)
         val editText2 = findViewById<EditText>(R.id.editText2)
         val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayout)
@@ -249,14 +248,16 @@ class MainActivity : AppCompatActivity() {
                     textInputLayout.isCounterEnabled = false
                     textView5.text = "= " + ihavetoitem
                     textView6.text = "= " + itemtoihave
-                    moneyList = emptyArray()
+                    //moneyList = emptyArray()
                     imageView4.setImageResource(flags[spinner.selectedItemPosition])
                     textView7.text = currencyName[spinner.selectedItemPosition]
+                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
                     textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
                     imageView5.setImageResource(flags[spinner2.selectedItemPosition])
                     textView9.text = currencyName[spinner2.selectedItemPosition]
-                    textView9.text = moneyList[spinner2.selectedItemPosition].toString()
+                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
+                    textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
                     //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
 
@@ -264,14 +265,16 @@ class MainActivity : AppCompatActivity() {
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
                     textView5.text = "no change"
                     textView6.text = "no change"
-                    moneyList = emptyArray()
+                    //moneyList = emptyArray()
                     imageView4.setImageResource(flags[spinner.selectedItemPosition])
                     textView7.text = currencyName[spinner.selectedItemPosition]
+                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
                     textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
                     imageView5.setImageResource(flags[spinner2.selectedItemPosition])
                     textView9.text = currencyName[spinner2.selectedItemPosition]
-                    textView9.text = moneyList[spinner2.selectedItemPosition].toString()
+                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
+                    textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
 
                     //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
