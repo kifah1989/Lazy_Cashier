@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var itemCurrency: Currency
     private var mSpinner: Spinner? = null
     private var mSpinner2: Spinner? = null
-    private var codeList = Array<String?>(149) { null }
+    private var codeList = Array<String>(149) { "AED" }
     var moneyList = Array<Money?>(149) { null }
     private val flags = arrayOf(
         aed,
@@ -189,6 +189,7 @@ class MainActivity : AppCompatActivity() {
             zar,
             zmw
             )
+
 
 
     private fun initializeui() {
@@ -463,12 +464,12 @@ class MainActivity : AppCompatActivity() {
                     for (keys in rates!!.keys) {
                         codeList[i] = keys
                         i++
-
                     }
 
                     for (i in 0..148) {
                         currencyList[i] = (Currency(codeList[i]!!, codeList[i]!!, valueList[i]))
                     }
+
 
                     progressBar.visibility = View.GONE
                 }

@@ -7,13 +7,15 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import de.tobiasschuerg.money.Currency
+import de.tobiasschuerg.money.Money
 
 /**
  * Created by abdalla on 10/29/17.
  */
 class SpinnerAdapter(
     var mContext: Context,
-    var spinnerTitles: Array<String?>,
+    var spinnerTitles: Array<String>,
     var spinnerImages: Array<Int>
 ) :
     ArrayAdapter<String?>(mContext, R.layout.custom_spinner) {
