@@ -28,46 +28,171 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private var rates: SortedMap<String, Double>? = null
-    private var timestamp: Long? = null
+    private var timestamp: String? = null
     private var currencies: Currencies? = null
-    private var currencyList = Array<Currency?>(11) { null }
-    private var valueList: DoubleArray = DoubleArray(11)
+    private var currencyList = Array<Currency?>(149) { null }
+    private var valueList: DoubleArray = DoubleArray(149)
     lateinit var iHaveCurrency: Currency
     lateinit var itemCurrency: Currency
     private var mSpinner: Spinner? = null
     private var mSpinner2: Spinner? = null
-    private var codeList = Array<String?>(11) { null }
-    var moneyList = Array<Money?>(11) { null }
+    private var codeList = Array<String?>(149) { null }
+    var moneyList = Array<Money?>(149) { null }
     private val flags = arrayOf(
-        flag_aed,
-        flag_aud,
-        flag_bhd,
-        flag_egp,
-        flag_eur,
-        flag_gbp,
-        flag_lbp,
-        flag_qar,
-        flag_sar,
-        flag_syp,
-        flag_usd
-    )
-    private val currencyName = arrayOf(
-        "درهم امراتي",
-        "AU Dollar",
-        "دينار بحرين",
-        "جنه مصري",
-        "Euro",
-        "British P",
-        "ليرة لبنانية",
-        "ريال قطري",
-        "ريال سعودي",
-        "ليرة سورية",
-        "US Dollar"
-    )
+        aed,
+        afn,
+        all,
+        amd,
+        ang,
+        aoa,
+        ars,
+        aud,
+        awg,
+        azn,
+        bam,
+        bbd,
+        bdt,
+        bgn,
+        bhd,
+        bif,
+        bmd,
+        bnd,
+        bob,
+        brl,
+        bsd,
+        btn,
+        bwp,
+        byn,
+        bzd,
+        cad,
+        cdf,
+        chf,
+        clp,
+        cny,
+        cop,
+        crc,
+        cup,
+        cve,
+        czk,
+        djf,
+        dkk,
+        dop,
+        dzd,
+        egp,
+        ern,
+        etb,
+        eur,
+        fjd,
+        fkp,
+        gbp,
+        gel,
+        ghs,
+        gip,
+        gmd,
+        gnf,
+        gtq,
+        gyd,
+        hkd,
+        hnl,
+        hrk,
+        htg,
+        huf,
+        idr,
+        ils,
+        inr,
+        iqd,
+        irr,
+        isk,
+        jmd,
+        jod,
+        jpy,
+        kes,
+        kgs,
+        khr,
+        kmf,
+        kpw,
+        krw,
+        kwd,
+        kyd,
+        kzt,
+        lak,
+        lbp,
+        lkr,
+        lrd,
+        lyd,
+        mad,
+        mdl,
+        mga,
+        mkd,
+        mmk,
+        mnt,
+        mop,
+        mro,
+        mur,
+        mvr,
+        mwk,
+        mxn,
+        myr,
+        mzn,
+        nad,
+        ngn,
+        nio,
+        nok,
+        npr,
+        nzd,
+        omr,
+        pen,
+        pgk,
+        php,
+        pkr,
+        pln,
+        pyg,
+        qar,
+        ron,
+        rsd,
+        rub,
+        rwf,
+        sar,
+        sbd,
+        scr,
+        sek,
+        sgd,
+        shp,
+        sll,
+        sos,
+        srd,
+        std,
+        svc,
+        syp,
+        szl,
+        thb,
+        tjs,
+        tnd,
+        top,
+        trk,
+            ttd,
+            twd,
+            tzs,
+            uah,
+            ugx,
+            usd,
+            uyu,
+            uzs,
+            vnd,
+            vuv,
+            wst,
+            xaf,
+            xcd,
+            xof,
+            xpf,
+            yer,
+            zar,
+            zmw
+            )
 
 
     private fun initializeui() {
-        val mCustomAdapter = SpinnerAdapter(this@MainActivity, currencyName, flags)
+        val mCustomAdapter = SpinnerAdapter(this@MainActivity, codeList, flags)
         spinner.adapter = mCustomAdapter
         spinner2.adapter = mCustomAdapter
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -189,7 +314,6 @@ class MainActivity : AppCompatActivity() {
         val second = spinner2.selectedItemPosition
         outState.putInt("first", first)
         outState.putInt("first", second)
-        outState.putLong("timestamp", timestamp!!)
         outState.putDoubleArray("valueList", valueList)
         outState.putStringArray("codeList", codeList)
 
@@ -203,7 +327,7 @@ class MainActivity : AppCompatActivity() {
         spinner.setSelection(pos)
         spinner2.setSelection(pos2)
 
-        val time = savedInstanceState.getLong("timestamp")
+        val time = savedInstanceState.getString("timestamp")
         timestamp = time
         val vlList = savedInstanceState.getDoubleArray("valueList")
         valueList = vlList!!
@@ -211,9 +335,6 @@ class MainActivity : AppCompatActivity() {
         codeList = codList!!
         super.onRestoreInstanceState(savedInstanceState)
     }
-
-
-
 
 
     fun calculate() {
@@ -224,7 +345,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        val currencyListview = findViewById<RecyclerView>(R.id.recyclerView)
         try {
             val ihave = editText.text.toString().toDouble()
             val itemPrice = editText2.text.toString().toDouble()
@@ -237,7 +357,7 @@ class MainActivity : AppCompatActivity() {
             val itemtoihave = itemMoney.convertInto(currencyList[selectedCurrency1]!!)
             val returnMoney1 = iHaveMoney - itemtoihave
             val returnMoney2 = ihavetoitem - itemMoney
-            for (i in 0..10) {
+            for (i in 0..148) {
                 moneyList[i] = (returnMoney1.convertInto(currencyList[i]!!))
             }
             textView5.text = "= " + ihavetoitem
@@ -248,18 +368,16 @@ class MainActivity : AppCompatActivity() {
                     textInputLayout.isCounterEnabled = false
                     textView5.text = "= " + ihavetoitem
                     textView6.text = "= " + itemtoihave
-                    //moneyList = emptyArray()
                     imageView4.setImageResource(flags[spinner.selectedItemPosition])
-                    textView7.text = currencyName[spinner.selectedItemPosition]
+                    textView7.text = codeList[spinner.selectedItemPosition]
                     moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
                     textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
                     imageView5.setImageResource(flags[spinner2.selectedItemPosition])
-                    textView9.text = currencyName[spinner2.selectedItemPosition]
+                    textView9.text = codeList[spinner2.selectedItemPosition]
                     moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
                     textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
-                    //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
 
                 }
                 returnMoney1.amount.toInt() == returnMoney2.amount.toInt() -> {
@@ -267,12 +385,12 @@ class MainActivity : AppCompatActivity() {
                     textView6.text = "no change"
                     //moneyList = emptyArray()
                     imageView4.setImageResource(flags[spinner.selectedItemPosition])
-                    textView7.text = currencyName[spinner.selectedItemPosition]
+                    textView7.text = codeList[spinner.selectedItemPosition]
                     moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
                     textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
                     imageView5.setImageResource(flags[spinner2.selectedItemPosition])
-                    textView9.text = currencyName[spinner2.selectedItemPosition]
+                    textView9.text = codeList[spinner2.selectedItemPosition]
                     moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
                     textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
@@ -285,15 +403,13 @@ class MainActivity : AppCompatActivity() {
                     textInputLayout2.isErrorEnabled = false
                     progressBar.visibility = View.VISIBLE
                     imageView4.setImageResource(flags[spinner.selectedItemPosition])
-                    textView7.text = currencyName[spinner.selectedItemPosition]
+                    textView7.text = codeList[spinner.selectedItemPosition]
                     textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
                     imageView5.setImageResource(flags[spinner2.selectedItemPosition])
-                    textView9.text = currencyName[spinner2.selectedItemPosition]
+                    textView9.text = codeList[spinner2.selectedItemPosition]
                     textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
-                    //currencyListview.layoutManager = LinearLayoutManager(this@MainActivity)
-                    //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
                     progressBar.visibility = View.GONE
 
 
@@ -336,13 +452,6 @@ class MainActivity : AppCompatActivity() {
 
                     currencies = response.body()
 
-                    timestamp = currencies!!.timestamp
-
-                    val cal = Calendar.getInstance(Locale.ENGLISH)
-                    cal.timeInMillis = timestamp!! * 1000
-                    val date: String = DateFormat.format("dd-MM-yyyy @ hh:mm a", cal).toString()
-
-                    textView2.text = "updated on " + date
                     rates = currencies!!.rates.toSortedMap()
 
                     var i = 0
@@ -357,8 +466,8 @@ class MainActivity : AppCompatActivity() {
 
                     }
 
-                    for (i in 0..10) {
-                        currencyList[i] = (Currency(codeList[i]!!, currencyName[i], valueList[i]))
+                    for (i in 0..148) {
+                        currencyList[i] = (Currency(codeList[i]!!, codeList[i]!!, valueList[i]))
                     }
 
                     progressBar.visibility = View.GONE

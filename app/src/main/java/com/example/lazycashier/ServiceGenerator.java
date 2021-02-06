@@ -22,7 +22,7 @@ public class ServiceGenerator {
     public static final String HEADER_CACHE_CONTROL = "Cache-Control";
     public static final String HEADER_PRAGMA = "Pragma";
     private static final String TAG = "ServiceGenerator";
-    private static final String BASE_URL = "http://data.fixer.io/";
+    private static final String BASE_URL = "https://api.exchangerate.host";
     private static final long cacheSize = 5 * 1024 * 1024; // 5 MB
     private static ServiceGenerator instance;
 

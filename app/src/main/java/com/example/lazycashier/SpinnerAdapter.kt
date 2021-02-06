@@ -13,7 +13,7 @@ import android.widget.TextView
  */
 class SpinnerAdapter(
     var mContext: Context,
-    var spinnerTitles: Array<String>,
+    var spinnerTitles: Array<String?>,
     var spinnerImages: Array<Int>
 ) :
     ArrayAdapter<String?>(mContext, R.layout.custom_spinner) {
