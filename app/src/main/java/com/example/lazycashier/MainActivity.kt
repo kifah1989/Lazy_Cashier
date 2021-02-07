@@ -364,20 +364,20 @@ class MainActivity : AppCompatActivity() {
             textView5.text = "= " + ihavetoitem
             textView6.text = "= " + itemtoihave
             when {
-                iHaveMoney.amount.toDouble() < itemtoihave.amount.toDouble() -> {
+                iHaveMoney.amount.toInt() < itemtoihave.amount.toInt() -> {
                     textInputLayout.error = "not enough money"
                     textInputLayout.isCounterEnabled = false
                     textView5.text = "= " + ihavetoitem
                     textView6.text = "= " + itemtoihave
-                    imageView4.setImageResource(flags[spinner.selectedItemPosition])
-                    textView7.text = codeList[spinner.selectedItemPosition]
-                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
-                    textView8.text = moneyList[spinner.selectedItemPosition].toString()
+                    //imageView4.setImageResource(flags[spinner.selectedItemPosition])
+                    //textView7.text = codeList[spinner.selectedItemPosition]
+                    //moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
+                    //textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
-                    imageView5.setImageResource(flags[spinner2.selectedItemPosition])
-                    textView9.text = codeList[spinner2.selectedItemPosition]
-                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
-                    textView10.text = moneyList[spinner2.selectedItemPosition].toString()
+                    //imageView5.setImageResource(flags[spinner2.selectedItemPosition])
+                    //textView9.text = codeList[spinner2.selectedItemPosition]
+                    //moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
+                    //textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
 
                 }
@@ -385,15 +385,15 @@ class MainActivity : AppCompatActivity() {
                     textView5.text = "no change"
                     textView6.text = "no change"
                     //moneyList = emptyArray()
-                    imageView4.setImageResource(flags[spinner.selectedItemPosition])
-                    textView7.text = codeList[spinner.selectedItemPosition]
-                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
-                    textView8.text = moneyList[spinner.selectedItemPosition].toString()
+                    //imageView4.setImageResource(flags[spinner.selectedItemPosition])
+                    //textView7.text = codeList[spinner.selectedItemPosition]
+                    //moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency1]!!))
+                    //textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
-                    imageView5.setImageResource(flags[spinner2.selectedItemPosition])
-                    textView9.text = codeList[spinner2.selectedItemPosition]
-                    moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
-                    textView10.text = moneyList[spinner2.selectedItemPosition].toString()
+                    //imageView5.setImageResource(flags[spinner2.selectedItemPosition])
+                    //textView9.text = codeList[spinner2.selectedItemPosition]
+                    //moneyList[spinner.selectedItemPosition] = (Money(0, currencyList[selectedCurrency2]!!))
+                    //textView10.text = moneyList[spinner2.selectedItemPosition].toString()
 
 
                     //currencyListview.adapter = CurrencyAdapter(moneyList, flags, currencyName)
@@ -402,14 +402,19 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     textInputLayout.isErrorEnabled = false
                     textInputLayout2.isErrorEnabled = false
+
                     progressBar.visibility = View.VISIBLE
+
                     imageView4.setImageResource(flags[spinner.selectedItemPosition])
                     textView7.text = codeList[spinner.selectedItemPosition]
                     textView8.text = moneyList[spinner.selectedItemPosition].toString()
 
-                    imageView5.setImageResource(flags[spinner2.selectedItemPosition])
-                    textView9.text = codeList[spinner2.selectedItemPosition]
-                    textView10.text = moneyList[spinner2.selectedItemPosition].toString()
+                    if (spinner.selectedItemPosition != spinner2.selectedItemPosition)
+                    {
+                        imageView5.setImageResource(flags[spinner2.selectedItemPosition])
+                        textView9.text = codeList[spinner2.selectedItemPosition]
+                        textView10.text = moneyList[spinner2.selectedItemPosition].toString()
+                    }
 
                     progressBar.visibility = View.GONE
 
